@@ -79,7 +79,7 @@ export default function OrderForm({ productId }: Props) {
       <button
         onClick={submitOrder}
         disabled={loading}
-        className="bg-black text-white py-2 rounded"
+        className="bg-accent text-neutral-900 font-medium py-2 rounded transition hover:opacity-90 disabled:opacity-60"
       >
         {loading ? "Отправка..." : "Заказать"}
       </button>

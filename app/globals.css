@@ -1,8 +1,13 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* тёплая тёмная "домашняя" тема (одинаковая для всех, не зависит от системной) */
+  --background: #221d19;
+  --foreground: #ece6df;
+
+  /* акцентные цвета */
+  --accent: #e0a458;   /* янтарь — тёплый свет/glow, основной акцент */
+  --accent-2: #4f8a82; /* приглушённая бирюза — доп. акцент */
 
   --base-text-color: #000000;
   --second-text-color: #333333;
@@ -23,15 +28,10 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-accent: var(--accent);
+  --color-accent-2: var(--accent-2);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
@@ -82,6 +82,56 @@ body {
     hero-fill 0.8s ease 3s forwards;
 }
 
+/* ===== Аврора: цветные размытые пятна, плавно плавают ===== */
+.hero-blob {
+  position: absolute;
+  width: 48vw;
+  height: 48vw;
+  border-radius: 9999px;
+  filter: blur(80px);
+  opacity: 0.55;
+  will-change: transform;
+}
+
+.hero-blob-1 {
+  top: -12%;
+  left: -8%;
+  background: #dca35c; /* янтарь */
+  animation: hero-blob-1 18s ease-in-out infinite alternate;
+}
+
+.hero-blob-2 {
+  top: 10%;
+  right: -12%;
+  background: #c46a4f; /* терракота */
+  animation: hero-blob-2 22s ease-in-out infinite alternate;
+}
+
+.hero-blob-3 {
+  bottom: -18%;
+  left: 28%;
+  background: #4f8a82; /* приглушённая бирюза */
+  animation: hero-blob-3 20s ease-in-out infinite alternate;
+}
+
+@keyframes hero-blob-1 {
+  to {
+    transform: translate(22%, 18%) scale(1.2);
+  }
+}
+
+@keyframes hero-blob-2 {
+  to {
+    transform: translate(-18%, 22%) scale(1.15);
+  }
+}
+
+@keyframes hero-blob-3 {
+  to {
+    transform: translate(12%, -22%) scale(1.25);
+  }
+}
+
 /* уважаем настройку "уменьшить движение" */
 @media (prefers-reduced-motion: reduce) {
   .hero-magazin {
@@ -92,5 +142,8 @@ body {
     animation: none;
     fill: currentColor;
     stroke: none;
+  }
+  .hero-blob {
+    animation: none;
   }
 }

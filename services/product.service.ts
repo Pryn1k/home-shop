@@ -5,7 +5,7 @@ import { supabase } from "@/lib/supabase";
 export const getProducts = async (): Promise<Product[]> => {
   const { data, error } = await supabase
     .from("products")
-    .select("id, title, price, image, category")
+    .select("id, title, price, image, category, createdAt:created_at")
     .order("created_at", { ascending: false });
 
   if (error) {
@@ -20,7 +20,7 @@ export const getProducts = async (): Promise<Product[]> => {
 export const getProduct = async (id: string): Promise<Product | null> => {
   const { data, error } = await supabase
     .from("products")
-    .select("id, title, price, image, category")
+    .select("id, title, price, image, category, createdAt:created_at")
     .eq("id", id)
     .single();
 

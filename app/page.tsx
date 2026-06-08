@@ -29,7 +29,7 @@ export default async function Home() {
         <div className="mt-10 flex justify-center">
           <Link
             href="/products"
-            className="rounded-lg border px-6 py-3 font-medium transition hover:bg-white hover:text-black"
+            className="rounded-lg border border-accent px-6 py-3 font-medium text-accent transition hover:bg-accent hover:text-neutral-900"
           >
             Посмотреть все товары →
           </Link>
