@@ -39,3 +39,58 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* ===== Анимации для Hero на главной ===== */
+
+/* "Магазин" выезжает слева */
+@keyframes hero-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(-60px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.hero-magazin {
+  animation: hero-slide-in 0.9s ease-out both;
+}
+
+/* "Домашний" — контур прорисовывается, потом заливается */
+@keyframes hero-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes hero-fill {
+  to {
+    fill: currentColor;
+  }
+}
+
+.hero-draw-text {
+  fill: transparent;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-dasharray: 2600;
+  stroke-dashoffset: 2600;
+  animation:
+    hero-draw 3s ease-in-out 0.4s forwards,
+    hero-fill 0.8s ease 3s forwards;
+}
+
+/* уважаем настройку "уменьшить движение" */
+@media (prefers-reduced-motion: reduce) {
+  .hero-magazin {
+    animation: none;
+    opacity: 1;
+  }
+  .hero-draw-text {
+    animation: none;
+    fill: currentColor;
+    stroke: none;
+  }
+}

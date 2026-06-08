@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function AddProductForm({
@@ -9,13 +9,31 @@ export default function AddProductForm({
   onDone: () => void;
 }) {
   const router = useRouter();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [title, setTitle] = useState("");
   const [price, setPrice] = useState("");
   const [category, setCategory] = useState("phones");
   const [file, setFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // чистим временную ссылку на превью, когда компонент закрывается
+  useEffect(() => {
+    return () => {
+      if (preview) URL.revokeObjectURL(preview);
+    };
+  }, [preview]);
+
+  const openPicker = () => fileInputRef.current?.click();
+
+  const handleFile = (f: File | null) => {
+    setError("");
+    if (preview) URL.revokeObjectURL(preview);
+    setFile(f);
+    setPreview(f ? URL.createObjectURL(f) : "");
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,6 +75,31 @@ export default function AddProductForm({
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+      {/* ПРЕВЬЮ КАРТИНКИ — сверху над всеми инпутами */}
+      {preview && (
+        <button
+          type="button"
+          onClick={openPicker}
+          aria-label="Заменить фото"
+          className="group relative block w-full aspect-video overflow-hidden rounded-lg"
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={preview}
+            alt="Превью товара"
+            className="h-full w-full object-cover"
+          />
+
+          {/* рамка с плюсиком: на мобиле всегда видна, на десктопе — при наведении.
+              inset-[10px] = отступ 10px внутри картинки */}
+          <span className="pointer-events-none absolute inset-[10px] flex items-center justify-center rounded-md border-2 border-dashed border-white/80 opacity-100 transition md:opacity-0 md:group-hover:opacity-100">
+            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-black/40 text-2xl leading-none text-white">
+              +
+            </span>
+          </span>
+        </button>
+      )}
+
       <input
         className="border p-2 rounded"
         placeholder="Название"
@@ -83,13 +126,27 @@ export default function AddProductForm({
         <option value="tv">TV</option>
       </select>
 
+      {/* настоящий input прячем, кликаем по нему через кнопку ниже */}
       <input
-        className="border p-2 rounded"
+        ref={fileInputRef}
+        className="hidden"
         type="file"
         accept="image/*"
-        onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-        required
+        onChange={(e) => handleFile(e.target.files?.[0] ?? null)}
       />
+
+      {/* кнопка выбора фото: зелёная после загрузки */}
+      <button
+        type="button"
+        onClick={openPicker}
+        className={`rounded border-2 p-2 transition ${
+          file
+            ? "border-green-500 text-green-600"
+            : "border-gray-300 text-gray-700 hover:border-gray-400"
+        }`}
+      >
+        {file ? "✓ Картинка загружена" : "Выбрать фото"}
+      </button>
 
       {error && <p className="text-red-600 text-sm">{error}</p>}
 

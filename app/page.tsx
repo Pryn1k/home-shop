@@ -1,19 +1,40 @@
 import { getProducts } from "@/services/product.service";
-import ProductListClient from "@/components/ProductListClient";
+import ProductCard from "@/components/ProductCard";
+import Hero from "@/components/Hero";
+import Link from "next/link";
 
 // всегда подтягиваем свежий список товаров из базы
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const products = await getProducts();
+  // 6 самых новых товаров (getProducts отдаёт отсортированными: новые сверху)
+  const products = (await getProducts()).slice(0, 6);
 
   return (
-    <main className="p-6">
-      <h1 className="text-2xl font-bold mb-6">
-        Магазин техники
-      </h1>
+    // -mt-16 убирает отступ сверху от body, чтобы Hero был вровень с верхом экрана
+    <main className="-mt-16">
+      <Hero />
 
-      <ProductListClient products={products} />
+      <section className="p-6">
+        <h2 className="text-2xl font-bold mb-6">
+          Новинки
+        </h2>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          {products.map((item) => (
+            <ProductCard key={item.id} {...item} />
+          ))}
+        </div>
+
+        <div className="mt-10 flex justify-center">
+          <Link
+            href="/products"
+            className="rounded-lg border px-6 py-3 font-medium transition hover:bg-white hover:text-black"
+          >
+            Посмотреть все товары →
+          </Link>
+        </div>
+      </section>
     </main>
   );
 }
