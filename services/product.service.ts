@@ -1,22 +1,33 @@
 import { Product } from "@/types/product";
+import { supabase } from "@/lib/supabase";
 
-export const products: Product[] = [
-  {
-    id: "1",
-    title: "iPhone 11",
-    price: 12000,
-    image: "/iphone.jpeg",
-    category: "phones"
-  },
-  {
-    id: "2",
-    title: "Samsung TV",
-    price: 8000,
-    image: "/tv.jpg",
-    category: "tv"
-  }
-];
-
+// Список всех товаров (новые сверху)
 export const getProducts = async (): Promise<Product[]> => {
-  return products;
+  const { data, error } = await supabase
+    .from("products")
+    .select("id, title, price, image, category")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("getProducts error:", error);
+    return [];
+  }
+
+  return data ?? [];
+};
+
+// Один товар по id (для страницы товара)
+export const getProduct = async (id: string): Promise<Product | null> => {
+  const { data, error } = await supabase
+    .from("products")
+    .select("id, title, price, image, category")
+    .eq("id", id)
+    .single();
+
+  if (error) {
+    console.error("getProduct error:", error);
+    return null;
+  }
+
+  return data;
 };

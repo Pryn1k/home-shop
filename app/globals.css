@@ -3,6 +3,21 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  --base-text-color: #000000;
+  --second-text-color: #333333;
+
+  /*Fonts*/
+  --font-1: "16px";
+  --font-2: "18px";
+  --font-3: "20px";
+  --font-4: "24px";
+  --font-5: "32px";
+  --font-6: "48px";
+  --font-h1: "56px";
+  --font-h2: "46px";
+  --font-h3: "34px";
+  --font-h4: "22px";
 }
 
 @theme inline {

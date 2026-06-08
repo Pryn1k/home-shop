@@ -1,6 +1,9 @@
 import { getProducts } from "@/services/product.service";
 import ProductListClient from "@/components/ProductListClient";
 
+// всегда подтягиваем свежий список товаров из базы
+export const dynamic = "force-dynamic";
+
 export default async function Home() {
   const products = await getProducts();
 

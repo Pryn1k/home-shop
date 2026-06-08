@@ -1,13 +1,27 @@
-import fs from "fs";
-import path from "path";
 import OrdersBoard from "@/components/OrdersBoard";
 import type { Order } from "@/types/order";
+import { supabaseAdmin } from "@/lib/supabaseAdmin";
+
+// заказы всегда тянем свежие из базы
+export const dynamic = "force-dynamic";
 
 export default async function AdminOrdersPage() {
-  const filePath = path.join(process.cwd(), "data", "orders.json");
+  // читаем заказы на сервере секретным ключом (обходит RLS)
+  const { data } = await supabaseAdmin
+    .from("orders")
+    .select("*")
+    .order("created_at", { ascending: false });
 
-  const fileData = fs.readFileSync(filePath, "utf-8");
-  const orders: Order[] = JSON.parse(fileData);
+  // приводим поля базы (snake_case) к типу Order (camelCase)
+  const orders: Order[] = (data ?? []).map((o) => ({
+    id: o.id,
+    productId: o.product_id,
+    name: o.name,
+    phone: o.phone,
+    comment: o.comment,
+    status: o.status,
+    createdAt: o.created_at,
+  }));
 
   const total = orders.length;
 

@@ -1,26 +1,33 @@
 import { NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
-
-const filePath = path.join(process.cwd(), "data", "orders.json");
+import { cookies } from "next/headers";
+import { supabaseAdmin } from "@/lib/supabaseAdmin";
 
 export async function POST(req: Request) {
+  // только админ может менять статус заказа
+  const cookieStore = await cookies();
+  const isAdmin = cookieStore.get("admin-auth")?.value === "true";
+
+  if (!isAdmin) {
+    return NextResponse.json(
+      { success: false, error: "Нет доступа" },
+      { status: 401 }
+    );
+  }
+
   const { id, status } = await req.json();
 
-  const fileData = fs.readFileSync(filePath, "utf-8");
-  const orders = JSON.parse(fileData);
+  // обновляем статус в базе и забираем обновлённую строку
+  const { data: updatedOrder, error } = await supabaseAdmin
+    .from("orders")
+    .update({ status })
+    .eq("id", id)
+    .select()
+    .single();
 
-  let updatedOrder: any = null;
-
-  const updated = orders.map((order: any) => {
-    if (order.id === id) {
-      updatedOrder = { ...order, status };
-      return updatedOrder;
-    }
-    return order;
-  });
-
-  fs.writeFileSync(filePath, JSON.stringify(updated, null, 2));
+  if (error || !updatedOrder) {
+    console.error(error);
+    return NextResponse.json({ success: false }, { status: 500 });
+  }
 
   // 📩 TELEGRAM УВЕДОМЛЕНИЕ
   const statusText =
@@ -33,10 +40,10 @@ export async function POST(req: Request) {
   const message = `
 📦 Обновление заказа
 
-ID: ${updatedOrder?.id}
+ID: ${updatedOrder.id}
 Статус: ${statusText}
-Имя: ${updatedOrder?.name}
-Телефон: ${updatedOrder?.phone}
+Имя: ${updatedOrder.name}
+Телефон: ${updatedOrder.phone}
 `;
 
   await fetch(

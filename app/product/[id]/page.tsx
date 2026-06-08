@@ -1,7 +1,9 @@
-import { getProducts } from "@/services/product.service";
+import { getProduct } from "@/services/product.service";
 import OrderForm from "@/components/OrderForm";
 import Image from "next/image";
 import Link from "next/link";
+
+export const dynamic = "force-dynamic";
 
 export default async function ProductPage({
   params,
@@ -10,11 +12,7 @@ export default async function ProductPage({
 }) {
   const { id } = await params;
 
-  console.log("ID:", id);
-
-  const products = await getProducts();
-
-  const product = products.find((p) => p.id === id);
+  const product = await getProduct(id);
 
   if (!product) {
     return <div>Товар не найден</div>;
