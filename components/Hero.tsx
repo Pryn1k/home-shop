@@ -1,3 +1,5 @@
+import HomeSearch from "./HomeSearch";
+
 export default function Hero() {
   return (
     <section className="relative h-[75vh] w-full overflow-hidden text-white">
@@ -35,6 +37,8 @@ export default function Hero() {
             Домашний
           </text>
         </svg>
+
+        <HomeSearch />
       </div>
     </section>
   );

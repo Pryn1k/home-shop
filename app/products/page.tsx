@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { getProducts } from "@/services/product.service";
 import ProductListClient from "@/components/ProductListClient";
 
@@ -12,7 +13,9 @@ export default async function ProductsPage() {
         Все товары
       </h1>
 
-      <ProductListClient products={products} />
+      <Suspense>
+        <ProductListClient products={products} />
+      </Suspense>
     </main>
   );
 }
