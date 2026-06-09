@@ -8,7 +8,8 @@ create table if not exists public.products (
   title      text not null,
   price      numeric not null,
   old_price  numeric,            -- старая цена (для скидки); пусто = скидки нет
-  image      text,
+  image      text,               -- обложка (первое фото) — для карточек
+  images     text[],             -- все фото товара (для галереи)
   category   text,
   created_at timestamptz not null default now()
 );

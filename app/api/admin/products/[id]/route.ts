@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import {
+  buildImagesFromForm,
+  removeImagesFromStorage,
+} from "@/lib/productImages";
 
 async function isAdmin() {
   const cookieStore = await cookies();
@@ -29,7 +33,6 @@ export async function PATCH(
     const oldPriceRaw = formData.get("oldPrice");
     const old_price = oldPriceRaw ? Number(oldPriceRaw) : null;
     const category = (formData.get("category") as string) || null;
-    const file = formData.get("image") as File | null;
 
     if (!title || !price) {
       return NextResponse.json(
@@ -38,40 +41,31 @@ export async function PATCH(
       );
     }
 
-    const updateData: Record<string, unknown> = {
-      title,
-      price,
-      old_price,
-      category,
-    };
+    // какие фото были раньше — чтобы потом убрать лишние из Storage
+    const { data: existing } = await supabaseAdmin
+      .from("products")
+      .select("image, images")
+      .eq("id", id)
+      .single();
 
-    // фото меняем только если выбрали новое
-    if (file && file.size > 0) {
-      const ext = file.name.split(".").pop() || "jpg";
-      const fileName = `${Date.now()}.${ext}`;
-
-      const { error: uploadError } = await supabaseAdmin.storage
-        .from("product-images")
-        .upload(fileName, file, { contentType: file.type });
-
-      if (uploadError) {
-        console.error("upload error:", uploadError);
-        return NextResponse.json(
-          { success: false, error: "Не удалось загрузить фото" },
-          { status: 500 }
-        );
-      }
-
-      const { data: publicUrlData } = supabaseAdmin.storage
-        .from("product-images")
-        .getPublicUrl(fileName);
-
-      updateData.image = publicUrlData.publicUrl;
+    const result = await buildImagesFromForm(formData);
+    if ("error" in result) {
+      return NextResponse.json(
+        { success: false, error: result.error },
+        { status: 400 }
+      );
     }
 
     const { data, error } = await supabaseAdmin
       .from("products")
-      .update(updateData)
+      .update({
+        title,
+        price,
+        old_price,
+        category,
+        image: result.image,
+        images: result.images,
+      })
       .eq("id", id)
       .select()
       .single();
@@ -82,6 +76,17 @@ export async function PATCH(
         { success: false, error: "Не удалось сохранить" },
         { status: 500 }
       );
+    }
+
+    // best-effort: удаляем из Storage фото, которые больше не используются
+    const oldUrls = [
+      ...(existing?.images ?? []),
+      ...(existing?.image ? [existing.image] : []),
+    ];
+    const stillUsed = new Set(result.images);
+    const orphans = oldUrls.filter((u) => !stillUsed.has(u));
+    if (orphans.length > 0) {
+      await removeImagesFromStorage(orphans);
     }
 
     return NextResponse.json({ success: true, product: data });
@@ -108,10 +113,10 @@ export async function DELETE(
 
   const { id } = await ctx.params;
 
-  // узнаём картинку товара, чтобы убрать её из Storage
+  // узнаём картинки товара, чтобы убрать их из Storage
   const { data: existing } = await supabaseAdmin
     .from("products")
-    .select("image")
+    .select("image, images")
     .eq("id", id)
     .single();
 
@@ -128,11 +133,12 @@ export async function DELETE(
     );
   }
 
-  // best-effort: чистим файл из Storage, если он там лежал
-  const marker = "/product-images/";
-  if (existing?.image?.includes(marker)) {
-    const fileName = existing.image.split(marker)[1];
-    await supabaseAdmin.storage.from("product-images").remove([fileName]);
+  const urls = [
+    ...(existing?.images ?? []),
+    ...(existing?.image ? [existing.image] : []),
+  ];
+  if (urls.length > 0) {
+    await removeImagesFromStorage(urls);
   }
 
   return NextResponse.json({ success: true });

@@ -4,6 +4,10 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Product } from "@/types/product";
 
+type Slot =
+  | { id: number; kind: "url"; url: string }
+  | { id: number; kind: "file"; file: File; preview: string };
+
 export default function ProductForm({
   mode,
   product,
@@ -14,7 +18,12 @@ export default function ProductForm({
   onDone: () => void;
 }) {
   const router = useRouter();
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const addInputRef = useRef<HTMLInputElement>(null);
+  const replaceInputRef = useRef<HTMLInputElement>(null);
+  const idCounter = useRef(0);
+  const replaceTargetId = useRef<number | null>(null);
+
+  const nextId = () => ++idCounter.current;
 
   const [title, setTitle] = useState(product?.title ?? "");
   const [price, setPrice] = useState(product ? String(product.price) : "");
@@ -22,34 +31,76 @@ export default function ProductForm({
     product?.oldPrice != null ? String(product.oldPrice) : ""
   );
   const [category, setCategory] = useState(product?.category ?? "phones");
-  const [file, setFile] = useState<File | null>(null);
-  // при редактировании сразу показываем текущее фото товара
-  const [preview, setPreview] = useState(product?.image ?? "");
+  const [slots, setSlots] = useState<Slot[]>(() => {
+    const urls = product?.images?.length
+      ? product.images
+      : product?.image
+      ? [product.image]
+      : [];
+    return urls.map((url) => ({ id: ++idCounter.current, kind: "url", url }));
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // чистим временную ссылку на превью (только для выбранного файла, не для http-ссылки)
+  // освобождаем временные ссылки на превью при закрытии
   useEffect(() => {
     return () => {
-      if (preview.startsWith("blob:")) URL.revokeObjectURL(preview);
+      slots.forEach((s) => {
+        if (s.kind === "file") URL.revokeObjectURL(s.preview);
+      });
     };
-  }, [preview]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  const openPicker = () => fileInputRef.current?.click();
-
-  const handleFile = (f: File | null) => {
+  const addFiles = (files: FileList | null) => {
+    if (!files || files.length === 0) return;
     setError("");
-    if (preview.startsWith("blob:")) URL.revokeObjectURL(preview);
-    setFile(f);
-    setPreview(f ? URL.createObjectURL(f) : product?.image ?? "");
+    const added: Slot[] = Array.from(files).map((file) => ({
+      id: nextId(),
+      kind: "file",
+      file,
+      preview: URL.createObjectURL(file),
+    }));
+    setSlots((prev) => [...prev, ...added]);
+  };
+
+  const replaceSlot = (file: File | null) => {
+    const targetId = replaceTargetId.current;
+    replaceTargetId.current = null;
+    if (!file || targetId == null) return;
+    setError("");
+    setSlots((prev) =>
+      prev.map((s) => {
+        if (s.id !== targetId) return s;
+        if (s.kind === "file") URL.revokeObjectURL(s.preview);
+        return {
+          id: s.id,
+          kind: "file",
+          file,
+          preview: URL.createObjectURL(file),
+        };
+      })
+    );
+  };
+
+  const removeSlot = (id: number) => {
+    setSlots((prev) => {
+      const s = prev.find((x) => x.id === id);
+      if (s && s.kind === "file") URL.revokeObjectURL(s.preview);
+      return prev.filter((x) => x.id !== id);
+    });
+  };
+
+  const triggerReplace = (id: number) => {
+    replaceTargetId.current = id;
+    replaceInputRef.current?.click();
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // фото обязательно только при добавлении; при редактировании можно оставить старое
-    if (mode === "add" && !file) {
-      setError("Добавьте фото товара");
+    if (slots.length === 0) {
+      setError("Добавьте хотя бы одно фото");
       return;
     }
 
@@ -59,10 +110,22 @@ export default function ProductForm({
     const formData = new FormData();
     formData.append("title", title);
     formData.append("price", price);
-    // старую цену шлём всегда: пусто = убрать скидку
     formData.append("oldPrice", oldPrice);
     formData.append("category", category);
-    if (file) formData.append("image", file);
+
+    // порядок фото + новые файлы
+    const order: Array<{ k: "url" | "new"; v: string | number }> = [];
+    let fileIndex = 0;
+    for (const s of slots) {
+      if (s.kind === "url") {
+        order.push({ k: "url", v: s.url });
+      } else {
+        formData.append("newImages", s.file);
+        order.push({ k: "new", v: fileIndex });
+        fileIndex++;
+      }
+    }
+    formData.append("imagesOrder", JSON.stringify(order));
 
     const endpoint =
       mode === "add"
@@ -87,36 +150,77 @@ export default function ProductForm({
     }
   };
 
-  const fileButtonText = file
-    ? "✓ Картинка загружена"
-    : mode === "edit"
-    ? "Заменить фото"
-    : "Выбрать фото";
-
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-      {/* ПРЕВЬЮ КАРТИНКИ — сверху над всеми инпутами */}
-      {preview && (
-        <button
-          type="button"
-          onClick={openPicker}
-          aria-label="Заменить фото"
-          className="group relative block w-full aspect-video overflow-hidden rounded-lg"
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={preview}
-            alt="Превью товара"
-            className="h-full w-full object-cover"
-          />
+      {/* МЕНЕДЖЕР КАРТИНОК */}
+      <div>
+        <p className="mb-1 text-sm text-gray-600">
+          Фото (первое — обложка). Клик по фото — заменить, × — удалить.
+        </p>
+        <div className="grid grid-cols-3 gap-2">
+          {slots.map((s, i) => (
+            <div
+              key={s.id}
+              className="relative aspect-square overflow-hidden rounded-lg border"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={s.kind === "url" ? s.url : s.preview}
+                alt=""
+                onClick={() => triggerReplace(s.id)}
+                className="h-full w-full cursor-pointer object-cover"
+              />
 
-          <span className="pointer-events-none absolute inset-[10px] flex items-center justify-center rounded-md border-2 border-dashed border-white/80 opacity-100 transition md:opacity-0 md:group-hover:opacity-100">
-            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-black/40 text-2xl leading-none text-white">
-              +
-            </span>
-          </span>
-        </button>
-      )}
+              {i === 0 && (
+                <span className="absolute left-1 top-1 rounded bg-black/60 px-1.5 py-0.5 text-[10px] text-white">
+                  обложка
+                </span>
+              )}
+
+              <button
+                type="button"
+                onClick={() => removeSlot(s.id)}
+                aria-label="Удалить фото"
+                className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-sm leading-none text-white hover:bg-black/80"
+              >
+                ×
+              </button>
+            </div>
+          ))}
+
+          {/* плитка добавления */}
+          <button
+            type="button"
+            onClick={() => addInputRef.current?.click()}
+            aria-label="Добавить фото"
+            className="flex aspect-square items-center justify-center rounded-lg border-2 border-dashed border-gray-300 text-3xl text-gray-400 transition hover:border-gray-400 hover:text-gray-600"
+          >
+            +
+          </button>
+        </div>
+
+        <input
+          ref={addInputRef}
+          type="file"
+          accept="image/*"
+          multiple
+          className="hidden"
+          onChange={(e) => {
+            addFiles(e.target.files);
+            e.target.value = "";
+          }}
+        />
+        <input
+          ref={replaceInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={(e) => {
+            replaceSlot(e.target.files?.[0] ?? null);
+            e.target.value = "";
+          }}
+        />
+      </div>
 
       <input
         className="border p-2 rounded"
@@ -151,26 +255,6 @@ export default function ProductForm({
         <option value="phones">Телефоны</option>
         <option value="tv">TV</option>
       </select>
-
-      <input
-        ref={fileInputRef}
-        className="hidden"
-        type="file"
-        accept="image/*"
-        onChange={(e) => handleFile(e.target.files?.[0] ?? null)}
-      />
-
-      <button
-        type="button"
-        onClick={openPicker}
-        className={`rounded border-2 p-2 transition ${
-          file
-            ? "border-green-500 text-green-600"
-            : "border-gray-300 text-gray-700 hover:border-gray-400"
-        }`}
-      >
-        {fileButtonText}
-      </button>
 
       {error && <p className="text-red-600 text-sm">{error}</p>}
 

@@ -1,6 +1,6 @@
 import { getProduct } from "@/services/product.service";
 import OrderForm from "@/components/OrderForm";
-import Image from "next/image";
+import ProductGallery from "@/components/ProductGallery";
 
 export const dynamic = "force-dynamic";
 
@@ -23,20 +23,17 @@ export default async function ProductPage({
       : 0;
   const hasDiscount = discountPercent > 0;
 
+  const gallery =
+    product.images && product.images.length > 0
+      ? product.images
+      : [product.image];
+
     return (
         <main className="p-6">
             <div className="max-w-2xl mx-auto">
 
                 <div className="border rounded-xl p-4">
-                    <div className="relative w-full aspect-[4/3] overflow-hidden rounded-lg bg-neutral-800">
-                        <Image
-                            src={product.image}
-                            alt={product.title}
-                            fill
-                            sizes="(max-width: 768px) 100vw, 672px"
-                            className="object-cover"
-                        />
-                    </div>
+                    <ProductGallery images={gallery} title={product.title} />
 
                     <h1 className="text-2xl font-bold mt-4">
                         {product.title}

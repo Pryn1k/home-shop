@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { buildImagesFromForm } from "@/lib/productImages";
 
 export async function POST(req: Request) {
   // 1. Проверяем, что запрос от залогиненного админа
@@ -15,7 +16,6 @@ export async function POST(req: Request) {
   }
 
   try {
-    // 2. Читаем данные формы (multipart, т.к. есть файл)
     const formData = await req.formData();
 
     const title = (formData.get("title") as string)?.trim();
@@ -23,37 +23,23 @@ export async function POST(req: Request) {
     const oldPriceRaw = formData.get("oldPrice");
     const old_price = oldPriceRaw ? Number(oldPriceRaw) : null;
     const category = (formData.get("category") as string) || null;
-    const file = formData.get("image") as File | null;
 
-    if (!title || !price || !file) {
+    if (!title || !price) {
       return NextResponse.json(
-        { success: false, error: "Заполните название, цену и фото" },
+        { success: false, error: "Заполните название и цену" },
         { status: 400 }
       );
     }
 
-    // 3. Загружаем фото в Storage (bucket "product-images")
-    const ext = file.name.split(".").pop() || "jpg";
-    const fileName = `${Date.now()}.${ext}`;
-
-    const { error: uploadError } = await supabaseAdmin.storage
-      .from("product-images")
-      .upload(fileName, file, { contentType: file.type });
-
-    if (uploadError) {
-      console.error("upload error:", uploadError);
+    // загружаем фото и собираем обложку + массив
+    const result = await buildImagesFromForm(formData);
+    if ("error" in result) {
       return NextResponse.json(
-        { success: false, error: "Не удалось загрузить фото" },
-        { status: 500 }
+        { success: false, error: result.error },
+        { status: 400 }
       );
     }
 
-    // 4. Получаем публичную ссылку на загруженное фото
-    const { data: publicUrlData } = supabaseAdmin.storage
-      .from("product-images")
-      .getPublicUrl(fileName);
-
-    // 5. Сохраняем товар в таблицу products
     const { data, error } = await supabaseAdmin
       .from("products")
       .insert([
@@ -62,7 +48,8 @@ export async function POST(req: Request) {
           price,
           old_price,
           category,
-          image: publicUrlData.publicUrl,
+          image: result.image,
+          images: result.images,
         },
       ])
       .select()
