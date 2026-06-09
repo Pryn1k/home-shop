@@ -21,7 +21,23 @@ export default function OrderCard({ order }: { order: Order }) {
   return (
     <div className="border rounded-xl p-4">
       <p><b>ID:</b> {order.id}</p>
-      <p><b>Товар:</b> {order.productId}</p>
+
+      {order.items && order.items.length > 0 ? (
+        <div className="my-1">
+          <b>Товары:</b>
+          <ul className="ml-4 list-disc">
+            {order.items.map((it, idx) => (
+              <li key={idx}>
+                {it.title} × {it.qty} — {it.price * it.qty} грн
+              </li>
+            ))}
+          </ul>
+          <p><b>Сумма:</b> {order.total} грн</p>
+        </div>
+      ) : (
+        <p><b>Товар:</b> {order.productId}</p>
+      )}
+
       <p><b>Имя:</b> {order.name}</p>
       <p><b>Телефон:</b> {order.phone}</p>
       <p><b>Комментарий:</b> {order.comment}</p>

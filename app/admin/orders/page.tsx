@@ -21,6 +21,8 @@ export default async function AdminOrdersPage() {
     comment: o.comment,
     status: o.status,
     createdAt: o.created_at,
+    items: o.items ?? null,
+    total: o.total ?? null,
   }));
 
   const total = orders.length;

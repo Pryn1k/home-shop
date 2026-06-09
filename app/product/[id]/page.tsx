@@ -1,5 +1,5 @@
 import { getProduct } from "@/services/product.service";
-import OrderForm from "@/components/OrderForm";
+import AddToCartButton from "@/components/AddToCartButton";
 import ProductGallery from "@/components/ProductGallery";
 
 export const dynamic = "force-dynamic";
@@ -55,7 +55,14 @@ export default async function ProductPage({
                         )}
                     </div>
 
-                    <OrderForm productId={product.id} />
+                    <AddToCartButton
+                        product={{
+                            productId: product.id,
+                            title: product.title,
+                            price: product.price,
+                            image: product.image,
+                        }}
+                    />
                 </div>
 
             </div>
