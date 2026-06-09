@@ -20,6 +20,8 @@ export async function POST(req: Request) {
 
     const title = (formData.get("title") as string)?.trim();
     const price = Number(formData.get("price"));
+    const oldPriceRaw = formData.get("oldPrice");
+    const old_price = oldPriceRaw ? Number(oldPriceRaw) : null;
     const category = (formData.get("category") as string) || null;
     const file = formData.get("image") as File | null;
 
@@ -58,6 +60,7 @@ export async function POST(req: Request) {
         {
           title,
           price,
+          old_price,
           category,
           image: publicUrlData.publicUrl,
         },

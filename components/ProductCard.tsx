@@ -7,15 +7,23 @@ type Props = {
   price: number;
   image: string;
   createdAt?: string;
+  oldPrice?: number | null;
 };
 
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
-export default function ProductCard({ id, title, price, image, createdAt }: Props) {
+export default function ProductCard({ id, title, price, image, createdAt, oldPrice }: Props) {
   // товар считается новым неделю с момента создания
   const isNew = createdAt
     ? Date.now() - new Date(createdAt).getTime() < WEEK_MS
     : false;
+
+  // скидка есть, если старая цена задана и больше текущей
+  const discountPercent =
+    oldPrice != null && oldPrice > price
+      ? Math.round((1 - price / oldPrice) * 100)
+      : 0;
+  const hasDiscount = discountPercent > 0;
 
   return (
     <Link href={`/product/${id}`}>
@@ -38,12 +46,21 @@ export default function ProductCard({ id, title, price, image, createdAt }: Prop
                 NEW
               </span>
             )}
-            {/* TODO: бейдж скидки — когда добавим в базу старую цену */}
+            {hasDiscount && (
+              <span className="rounded-full bg-[#c46a4f] px-2 py-0.5 text-xs font-bold text-white">
+                −{discountPercent}%
+              </span>
+            )}
           </div>
 
-          {/* цена справа сверху, на фоне */}
-          <span className="absolute right-2 top-2 rounded-lg bg-black/65 px-2.5 py-1 text-sm font-semibold text-accent backdrop-blur-sm">
-            {price} грн
+          {/* цена справа сверху, на фоне (со старой ценой при скидке) */}
+          <span className="absolute right-2 top-2 flex items-center gap-1.5 rounded-lg bg-black/65 px-2.5 py-1 text-sm font-semibold backdrop-blur-sm">
+            {hasDiscount && (
+              <span className="text-xs font-normal text-neutral-400 line-through">
+                {oldPrice} грн
+              </span>
+            )}
+            <span className="text-accent">{price} грн</span>
           </span>
         </div>
 

@@ -17,6 +17,12 @@ export default async function ProductPage({
     return <div>Товар не найден</div>;
   }
 
+  const discountPercent =
+    product.oldPrice != null && product.oldPrice > product.price
+      ? Math.round((1 - product.price / product.oldPrice) * 100)
+      : 0;
+  const hasDiscount = discountPercent > 0;
+
     return (
         <main className="p-6">
             <div className="max-w-2xl mx-auto">
@@ -36,9 +42,21 @@ export default async function ProductPage({
                         {product.title}
                     </h1>
 
-                    <p className="text-xl mt-2 text-accent font-semibold">
-                        {product.price} грн
-                    </p>
+                    <div className="mt-2 flex items-center gap-3">
+                        <p className="text-xl text-accent font-semibold">
+                            {product.price} грн
+                        </p>
+                        {hasDiscount && (
+                            <>
+                                <span className="text-neutral-400 line-through">
+                                    {product.oldPrice} грн
+                                </span>
+                                <span className="rounded bg-[#c46a4f] px-2 py-0.5 text-sm font-semibold text-white">
+                                    −{discountPercent}%
+                                </span>
+                            </>
+                        )}
+                    </div>
 
                     <OrderForm productId={product.id} />
                 </div>

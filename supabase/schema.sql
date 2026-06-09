@@ -7,6 +7,7 @@ create table if not exists public.products (
   id         uuid primary key default gen_random_uuid(),
   title      text not null,
   price      numeric not null,
+  old_price  numeric,            -- старая цена (для скидки); пусто = скидки нет
   image      text,
   category   text,
   created_at timestamptz not null default now()

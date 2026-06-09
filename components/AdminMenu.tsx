@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
-import AddProductForm from "./AddProductForm";
+import ProductForm from "./ProductForm";
 
 export default function AdminMenu() {
   const pathname = usePathname();
@@ -76,6 +76,14 @@ export default function AdminMenu() {
           </button>
 
           <Link
+            href="/admin/products"
+            onClick={() => setOpen(false)}
+            className="rounded-lg px-3 py-2 hover:bg-gray-100 transition"
+          >
+            🛠 Управление товарами
+          </Link>
+
+          <Link
             href="/admin/orders"
             onClick={() => setOpen(false)}
             className="rounded-lg px-3 py-2 hover:bg-gray-100 transition"
@@ -100,7 +108,7 @@ export default function AdminMenu() {
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="bg-white text-gray-900 rounded-xl p-6 w-full max-w-md shadow-xl"
+            className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-xl bg-white p-6 text-gray-900 shadow-xl"
           >
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold">Добавить товар</h2>
@@ -113,7 +121,7 @@ export default function AdminMenu() {
               </button>
             </div>
 
-            <AddProductForm onDone={() => setAddOpen(false)} />
+            <ProductForm mode="add" onDone={() => setAddOpen(false)} />
           </div>
         </div>
       )}
