@@ -9,21 +9,43 @@ export default function AddToCartButton({
 }: {
   product: Omit<CartItem, "qty">;
 }) {
-  const { add } = useCart();
+  const { add, items } = useCart();
   const [added, setAdded] = useState(false);
+
+  const inCart =
+    items.find((i) => i.productId === product.productId)?.qty ?? 0;
+  const outOfStock = product.stock === 0;
+  const reachedLimit = product.stock != null && inCart >= product.stock;
 
   const handleAdd = () => {
     add(product);
     setAdded(true);
   };
 
+  if (outOfStock) {
+    return (
+      <p className="mt-6 rounded bg-neutral-700 py-3 text-center font-medium text-neutral-300">
+        Нет в наличии
+      </p>
+    );
+  }
+
   return (
     <div className="mt-6 flex flex-col gap-2">
+      {product.stock != null && (
+        <p className="text-sm text-neutral-400">В наличии: {product.stock} шт</p>
+      )}
+
       <button
         onClick={handleAdd}
-        className="rounded bg-accent py-3 font-medium text-neutral-900 transition hover:opacity-90"
+        disabled={reachedLimit}
+        className="rounded bg-accent py-3 font-medium text-neutral-900 transition hover:opacity-90 disabled:opacity-50"
       >
-        {added ? "Добавить ещё" : "В корзину"}
+        {reachedLimit
+          ? "Больше нет в наличии"
+          : added
+          ? "Добавить ещё"
+          : "В корзину"}
       </button>
 
       {added && (

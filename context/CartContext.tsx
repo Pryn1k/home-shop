@@ -13,6 +13,7 @@ export type CartItem = {
   title: string;
   price: number;
   image: string;
+  stock: number | null; // null = без ограничения
   qty: number;
 };
 
@@ -49,15 +50,22 @@ export function CartProvider({ children }: { children: ReactNode }) {
     if (loaded) localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
   }, [items, loaded]);
 
+  // ограничиваем количество остатком (если он задан)
+  const cap = (qty: number, stock: number | null) =>
+    stock == null ? Math.max(1, qty) : Math.max(1, Math.min(qty, stock));
+
   const add: CartContextType["add"] = (item, qty = 1) => {
+    if (item.stock === 0) return; // нет в наличии
     setItems((prev) => {
       const found = prev.find((i) => i.productId === item.productId);
       if (found) {
         return prev.map((i) =>
-          i.productId === item.productId ? { ...i, qty: i.qty + qty } : i
+          i.productId === item.productId
+            ? { ...i, stock: item.stock, qty: cap(i.qty + qty, item.stock) }
+            : i
         );
       }
-      return [...prev, { ...item, qty }];
+      return [...prev, { ...item, qty: cap(qty, item.stock) }];
     });
   };
 
@@ -67,7 +75,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const setQty = (productId: string, qty: number) =>
     setItems((prev) =>
       prev.map((i) =>
-        i.productId === productId ? { ...i, qty: Math.max(1, qty) } : i
+        i.productId === productId ? { ...i, qty: cap(qty, i.stock) } : i
       )
     );
 

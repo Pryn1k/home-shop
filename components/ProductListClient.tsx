@@ -11,6 +11,7 @@ type Product = {
   oldPrice: number | null;
   image: string;
   category: string;
+  stock: number | null;
   createdAt: string;
 };
 

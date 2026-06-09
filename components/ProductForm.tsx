@@ -31,6 +31,9 @@ export default function ProductForm({
     product?.oldPrice != null ? String(product.oldPrice) : ""
   );
   const [category, setCategory] = useState(product?.category ?? "phones");
+  const [stock, setStock] = useState(
+    product?.stock != null ? String(product.stock) : ""
+  );
   const [slots, setSlots] = useState<Slot[]>(() => {
     const urls = product?.images?.length
       ? product.images
@@ -112,6 +115,7 @@ export default function ProductForm({
     formData.append("price", price);
     formData.append("oldPrice", oldPrice);
     formData.append("category", category);
+    formData.append("stock", stock);
 
     // порядок фото + новые файлы
     const order: Array<{ k: "url" | "new"; v: string | number }> = [];
@@ -255,6 +259,15 @@ export default function ProductForm({
         <option value="phones">Телефоны</option>
         <option value="tv">TV</option>
       </select>
+
+      <input
+        className="border p-2 rounded"
+        type="number"
+        min="0"
+        placeholder="Количество в наличии (пусто = без ограничения)"
+        value={stock}
+        onChange={(e) => setStock(e.target.value)}
+      />
 
       {error && <p className="text-red-600 text-sm">{error}</p>}
 

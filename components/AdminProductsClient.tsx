@@ -57,6 +57,15 @@ export default function AdminProductsClient({
                       {p.oldPrice} грн
                     </span>
                   )}
+                  {p.stock != null && (
+                    <span
+                      className={`ml-2 text-xs ${
+                        p.stock === 0 ? "text-red-400" : "text-neutral-400"
+                      }`}
+                    >
+                      {p.stock === 0 ? "нет в наличии" : `в наличии: ${p.stock}`}
+                    </span>
+                  )}
                 </p>
               </div>
 

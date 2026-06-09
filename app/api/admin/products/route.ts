@@ -23,6 +23,8 @@ export async function POST(req: Request) {
     const oldPriceRaw = formData.get("oldPrice");
     const old_price = oldPriceRaw ? Number(oldPriceRaw) : null;
     const category = (formData.get("category") as string) || null;
+    const stockRaw = formData.get("stock");
+    const stock = stockRaw ? Number(stockRaw) : null;
 
     if (!title || !price) {
       return NextResponse.json(
@@ -48,6 +50,7 @@ export async function POST(req: Request) {
           price,
           old_price,
           category,
+          stock,
           image: result.image,
           images: result.images,
         },

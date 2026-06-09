@@ -23,6 +23,27 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: false }, { status: 400 });
     }
 
+    // проверяем наличие (на случай, если остаток изменился)
+    const ids = items.map((i) => i.productId);
+    const { data: prods } = await supabaseAdmin
+      .from("products")
+      .select("id, stock")
+      .in("id", ids);
+    const stockMap = new Map((prods ?? []).map((p) => [p.id, p.stock]));
+
+    for (const it of items) {
+      const stock = stockMap.get(it.productId);
+      if (stock != null && it.qty > stock) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: `Недостаточно товара «${it.title}» (в наличии ${stock})`,
+          },
+          { status: 400 }
+        );
+      }
+    }
+
     // сохраняем заказ (на сервере, секретным ключом)
     const { error } = await supabaseAdmin.from("orders").insert([
       {
@@ -40,9 +61,23 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: false }, { status: 500 });
     }
 
+    // уменьшаем остатки заказанных товаров
+    for (const it of items) {
+      const stock = stockMap.get(it.productId);
+      if (stock != null) {
+        await supabaseAdmin
+          .from("products")
+          .update({ stock: stock - it.qty })
+          .eq("id", it.productId);
+      }
+    }
+
     // Telegram-уведомление со списком позиций
     const lines = items
-      .map((i) => `• ${i.title} × ${i.qty} = ${i.price * i.qty} грн`)
+      .map(
+        (i) =>
+          `• ${i.title} — ${i.qty} × ${i.price} грн = ${i.price * i.qty} грн`
+      )
       .join("\n");
 
     const message = `🛒 Новый заказ

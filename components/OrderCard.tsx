@@ -28,7 +28,7 @@ export default function OrderCard({ order }: { order: Order }) {
           <ul className="ml-4 list-disc">
             {order.items.map((it, idx) => (
               <li key={idx}>
-                {it.title} × {it.qty} — {it.price * it.qty} грн
+                {it.title} — {it.qty} × {it.price} грн = {it.price * it.qty} грн
               </li>
             ))}
           </ul>
