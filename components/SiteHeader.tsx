@@ -5,12 +5,14 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useCart } from "@/context/CartContext";
 import ThemeToggle from "./ThemeToggle";
+import CartDrawer from "./CartDrawer";
 
 export default function SiteHeader() {
   const pathname = usePathname();
   const { count } = useCart();
   const [scrolled, setScrolled] = useState(false);
   const [admin, setAdmin] = useState(false);
+  const [cartOpen, setCartOpen] = useState(false);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -39,6 +41,7 @@ export default function SiteHeader() {
   const transparent = isHome && !scrolled;
 
   return (
+    <>
     <header
       className={`fixed inset-x-0 top-0 z-50 h-16 transition-colors duration-300 ${
         transparent
@@ -110,9 +113,10 @@ export default function SiteHeader() {
           {/* Тема День/Ночь */}
           <ThemeToggle />
 
-          {/* Корзина */}
-          <Link
-            href="/cart"
+          {/* Корзина — открывает выезжающую панель */}
+          <button
+            type="button"
+            onClick={() => setCartOpen(true)}
             aria-label="Корзина"
             className="relative flex h-9 w-9 items-center justify-center rounded-full transition hover:bg-foreground/10"
           >
@@ -138,9 +142,12 @@ export default function SiteHeader() {
                 {count}
               </span>
             )}
-          </Link>
+          </button>
         </div>
       </div>
     </header>
+
+    <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
+    </>
   );
 }
