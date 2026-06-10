@@ -18,8 +18,8 @@ export default function SiteHeader() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // в админке своя навигация (AdminMenu) — общую шапку не показываем
-  if (pathname.startsWith("/admin")) return null;
+  // на странице логина шапка не нужна; на остальных админ-страницах — показываем
+  if (pathname === "/admin/login") return null;
 
   const isHome = pathname === "/";
   // прозрачная поверх hero только на главной у самого верха

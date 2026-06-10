@@ -28,30 +28,41 @@ export default function AdminMenu() {
 
   return (
     <>
-      {/* КНОПКА справа вверху */}
+      {/* КНОПКА-ШЕСТЕРЁНКА — под хедером, справа */}
       <button
         onClick={() => setOpen(true)}
-        aria-label="Открыть меню"
-        className="fixed top-4 right-4 z-40 flex h-11 w-11 items-center justify-center rounded-full border bg-surface text-foreground shadow transition hover:shadow-md"
+        aria-label="Меню админки"
+        title="Админ-меню"
+        className="fixed top-20 right-4 z-40 flex h-11 w-11 items-center justify-center rounded-full border border-border bg-surface text-foreground shadow transition hover:text-accent hover:shadow-md"
       >
-        <span className="block w-5 space-y-1">
-          <span className="block h-0.5 bg-foreground rounded" />
-          <span className="block h-0.5 bg-foreground rounded" />
-          <span className="block h-0.5 bg-foreground rounded" />
-        </span>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <circle cx="12" cy="12" r="3" />
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+        </svg>
       </button>
 
       {/* ЗАТЕМНЕНИЕ */}
       {open && (
         <div
           onClick={() => setOpen(false)}
-          className="fixed inset-0 z-40 bg-black/40"
+          className="fixed inset-0 z-[55] bg-black/40"
         />
       )}
 
       {/* БОКОВОЕ МЕНЮ */}
       <aside
-        className={`fixed top-0 right-0 z-50 h-full w-72 bg-white text-gray-900 border-l shadow-xl p-6 flex flex-col transition-transform duration-300 ${
+        className={`fixed top-0 right-0 z-[60] h-full w-72 bg-white text-gray-900 border-l shadow-xl p-6 flex flex-col transition-transform duration-300 ${
           open ? "translate-x-0" : "translate-x-full"
         }`}
       >
@@ -116,7 +127,7 @@ export default function AdminMenu() {
       {addOpen && (
         <div
           onClick={() => setAddOpen(false)}
-          className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4"
+          className="fixed inset-0 z-[60] bg-black/40 flex items-center justify-center p-4"
         >
           <div
             onClick={(e) => e.stopPropagation()}
@@ -142,7 +153,7 @@ export default function AdminMenu() {
       {catOpen && (
         <div
           onClick={() => setCatOpen(false)}
-          className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4"
+          className="fixed inset-0 z-[60] bg-black/40 flex items-center justify-center p-4"
         >
           <div
             onClick={(e) => e.stopPropagation()}
