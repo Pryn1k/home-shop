@@ -24,7 +24,7 @@ export default function HomeSearch() {
         value={q}
         onChange={(e) => setQ(e.target.value)}
         placeholder="Поиск товаров..."
-        className="flex-1 rounded-full border border-white/30 bg-black/30 px-4 py-2 text-white placeholder-white/60 backdrop-blur focus:border-accent focus:outline-none"
+        className="flex-1 rounded-full border border-foreground/25 bg-background/40 px-4 py-2 text-foreground placeholder-foreground/50 backdrop-blur focus:border-accent focus:outline-none"
       />
       <button
         type="submit"

@@ -29,7 +29,7 @@ export default function SiteHeader() {
     <header
       className={`fixed inset-x-0 top-0 z-50 h-16 transition-colors duration-300 ${
         transparent
-          ? "bg-transparent text-white"
+          ? "bg-transparent text-foreground"
           : "border-b border-border bg-surface/80 text-foreground backdrop-blur"
       }`}
     >
