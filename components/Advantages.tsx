@@ -38,28 +38,32 @@ const items = [
 
 export default function Advantages() {
   return (
-    <section className="border-y border-border bg-surface/40 px-6 py-8">
-      <div className="mx-auto grid max-w-6xl grid-cols-2 gap-6 md:grid-cols-4">
+    <section className="border-y border-border px-6 py-10">
+      <div className="mx-auto grid max-w-6xl grid-cols-2 gap-4 md:grid-cols-4">
         {items.map((it) => (
-          <div key={it.title} className="flex items-start gap-3">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="26"
-              height="26"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-              className="mt-0.5 shrink-0 text-accent"
-            >
-              {it.icon}
-            </svg>
+          <div
+            key={it.title}
+            className="flex flex-col items-center gap-3 rounded-2xl border border-border bg-surface p-6 text-center transition hover:border-accent/50 hover:shadow-md"
+          >
+            <span className="flex h-14 w-14 items-center justify-center rounded-full bg-accent/10 text-accent">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="30"
+                height="30"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                {it.icon}
+              </svg>
+            </span>
             <div>
               <p className="font-semibold leading-tight">{it.title}</p>
-              <p className="text-sm text-muted">{it.text}</p>
+              <p className="mt-1 text-sm text-muted">{it.text}</p>
             </div>
           </div>
         ))}
