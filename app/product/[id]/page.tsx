@@ -1,5 +1,7 @@
 import { getProduct } from "@/services/product.service";
+import { isAdmin } from "@/lib/auth";
 import AddToCartButton from "@/components/AddToCartButton";
+import AdminEditButton from "@/components/AdminEditButton";
 import ProductGallery from "@/components/ProductGallery";
 
 export const dynamic = "force-dynamic";
@@ -11,7 +13,7 @@ export default async function ProductPage({
 }) {
   const { id } = await params;
 
-  const product = await getProduct(id);
+  const [product, admin] = await Promise.all([getProduct(id), isAdmin()]);
 
   if (!product) {
     return <div>Товар не найден</div>;
@@ -64,6 +66,12 @@ export default async function ProductPage({
                             stock: product.stock,
                         }}
                     />
+
+                    {admin && (
+                        <div className="mt-4">
+                            <AdminEditButton label="Редактировать" product={product} />
+                        </div>
+                    )}
                 </div>
 
             </div>

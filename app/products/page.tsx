@@ -1,11 +1,12 @@
 import { Suspense } from "react";
 import { getProducts } from "@/services/product.service";
+import { isAdmin } from "@/lib/auth";
 import ProductListClient from "@/components/ProductListClient";
 
 export const dynamic = "force-dynamic";
 
 export default async function ProductsPage() {
-  const products = await getProducts();
+  const [products, admin] = await Promise.all([getProducts(), isAdmin()]);
 
   return (
     <main className="p-6">
@@ -14,7 +15,7 @@ export default async function ProductsPage() {
       </h1>
 
       <Suspense>
-        <ProductListClient products={products} />
+        <ProductListClient products={products} isAdmin={admin} />
       </Suspense>
     </main>
   );

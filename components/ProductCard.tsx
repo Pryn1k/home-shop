@@ -1,5 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
+import type { Product } from "@/types/product";
+import AdminEditButton from "./AdminEditButton";
 
 type Props = {
   id: string;
@@ -9,6 +11,9 @@ type Props = {
   createdAt?: string;
   oldPrice?: number | null;
   stock?: number | null;
+  category?: string;
+  images?: string[] | null;
+  isAdmin?: boolean;
 };
 
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
@@ -21,6 +26,9 @@ export default function ProductCard({
   createdAt,
   oldPrice,
   stock,
+  category,
+  images,
+  isAdmin,
 }: Props) {
   // товар считается новым неделю с момента создания
   const isNew = createdAt
@@ -37,9 +45,11 @@ export default function ProductCard({
   const outOfStock = stock === 0;
 
   return (
-    <Link href={`/product/${id}`}>
-      <div className="border bg-surface rounded-xl p-4 hover:shadow-lg transition cursor-pointer">
-
+    <div className="relative">
+      <Link
+        href={`/product/${id}`}
+        className="block border bg-surface rounded-xl p-4 hover:shadow-lg transition"
+      >
         {/* КАРТИНКА — адаптивная (резиновая), фикс. соотношение сторон */}
         <div className="relative w-full aspect-[4/3] overflow-hidden rounded-lg bg-img-bg">
           <Image
@@ -84,8 +94,25 @@ export default function ProductCard({
         </div>
 
         <h2 className="mt-2 text-lg font-semibold">{title}</h2>
+      </Link>
 
-      </div>
-    </Link>
+      {/* админ: карандашик для быстрого редактирования */}
+      {isAdmin && (
+        <AdminEditButton
+          className="absolute bottom-3 right-3 z-20"
+          product={{
+            id,
+            title,
+            price,
+            oldPrice: oldPrice ?? null,
+            image,
+            images: images ?? null,
+            category: category ?? "",
+            stock: stock ?? null,
+            createdAt: createdAt ?? "",
+          }}
+        />
+      )}
+    </div>
   );
 }

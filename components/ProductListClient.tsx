@@ -10,6 +10,7 @@ type Product = {
   price: number;
   oldPrice: number | null;
   image: string;
+  images: string[] | null;
   category: string;
   stock: number | null;
   createdAt: string;
@@ -17,9 +18,10 @@ type Product = {
 
 type Props = {
   products: Product[];
+  isAdmin?: boolean;
 };
 
-export default function ProductListClient({ products }: Props) {
+export default function ProductListClient({ products, isAdmin }: Props) {
   const searchParams = useSearchParams();
 
   const [search, setSearch] = useState(searchParams.get("search") ?? "");
@@ -82,7 +84,7 @@ export default function ProductListClient({ products }: Props) {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {sorted.map((item) => (
-            <ProductCard key={item.id} {...item} />
+            <ProductCard key={item.id} {...item} isAdmin={isAdmin} />
           ))}
         </div>
       )}
