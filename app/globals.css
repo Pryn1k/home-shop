@@ -1,13 +1,21 @@
 @import "tailwindcss";
 
 :root {
-  /* тёплая тёмная "домашняя" тема (одинаковая для всех, не зависит от системной) */
+  /* ===== НОЧЬ — тёплая тёмная "домашняя" тема (по умолчанию) ===== */
   --background: #221d19;
   --foreground: #ece6df;
+  --surface: #2b2520;                  /* карточки, плавающие кнопки, панели */
+  --muted: #b3a89d;                    /* приглушённый текст (цены-зачёркивания, подсказки) */
+  --border: rgba(236, 230, 223, 0.14); /* мягкие рамки */
+  --img-bg: #34302a;                   /* подложка под картинками, пока грузятся */
 
   /* акцентные цвета */
   --accent: #e0a458;   /* янтарь — тёплый свет/glow, основной акцент */
   --accent-2: #4f8a82; /* приглушённая бирюза — доп. акцент */
+
+  /* цвета бейджей на карточках товара (одинаковы в обеих темах — они лежат на фото) */
+  --badge-new: #2f9a78;  /* контрастный тёпло-зелёный: «новинка» */
+  --badge-sale: #c46a4f; /* терракота: «скидка/sale» */
 
   --base-text-color: #000000;
   --second-text-color: #333333;
@@ -25,11 +33,30 @@
   --font-h4: "22px";
 }
 
+/* ===== ДЕНЬ — тёплая светлая тема (мягкий кремовый, не белый) ===== */
+.light {
+  --background: #f4efe6;                /* тёплый кремовый фон, не режет глаза */
+  --foreground: #2c2620;               /* тёплый тёмно-коричневый текст */
+  --surface: #fbf8f1;                  /* чуть светлее фона — лёгкая «приподнятость» карточек */
+  --muted: #6f655b;                    /* приглушённый текст */
+  --border: rgba(44, 38, 32, 0.14);    /* мягкие тёплые рамки */
+  --img-bg: #e7ded0;                   /* подложка под картинками */
+
+  --accent: #bf7d2c;   /* янтарь чуть глубже — читаемо на светлом фоне */
+  --accent-2: #3f756d; /* бирюза чуть глубже */
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-img-bg: var(--img-bg);
   --color-accent: var(--accent);
   --color-accent-2: var(--accent-2);
+  --color-badge-new: var(--badge-new);
+  --color-badge-sale: var(--badge-sale);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -38,6 +65,17 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  /* плавное переключение День/Ночь */
+  transition: background-color 0.35s ease, color 0.35s ease;
+}
+
+/* по умолчанию рамки (утилита `border` без явного цвета) берут токен темы */
+@layer base {
+  *,
+  ::before,
+  ::after {
+    border-color: var(--border);
+  }
 }
 
 /* ===== Анимации для Hero на главной ===== */
