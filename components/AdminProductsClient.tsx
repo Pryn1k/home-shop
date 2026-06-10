@@ -13,6 +13,16 @@ export default function AdminProductsClient({
   const router = useRouter();
   const [editing, setEditing] = useState<Product | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+
+  const query = search.trim().toLowerCase();
+  const shown = query
+    ? products.filter(
+        (p) =>
+          p.title.toLowerCase().includes(query) ||
+          (p.category ?? "").toLowerCase().includes(query)
+      )
+    : products;
 
   const handleDelete = async (id: string, title: string) => {
     if (!confirm(`Удалить товар «${title}»?`)) return;
@@ -28,12 +38,25 @@ export default function AdminProductsClient({
 
   return (
     <>
+      <div className="mb-4">
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Поиск по названию или категории…"
+          className="w-full rounded-lg border p-2"
+        />
+      </div>
+
       <div className="flex flex-col gap-3">
         {products.length === 0 && (
           <p className="text-neutral-400">Товаров пока нет.</p>
         )}
 
-        {products.map((p) => {
+        {products.length > 0 && shown.length === 0 && (
+          <p className="text-neutral-400">Ничего не найдено.</p>
+        )}
+
+        {shown.map((p) => {
           const hasDiscount = p.oldPrice != null && p.oldPrice > p.price;
 
           return (
