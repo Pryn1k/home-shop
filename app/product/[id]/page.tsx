@@ -32,7 +32,7 @@ export default async function ProductPage({
         <main className="p-6">
             <div className="max-w-2xl mx-auto">
 
-                <div className="border rounded-xl p-4">
+                <div className="border bg-surface rounded-xl p-4">
                     <ProductGallery images={gallery} title={product.title} />
 
                     <h1 className="text-2xl font-bold mt-4">
@@ -45,10 +45,10 @@ export default async function ProductPage({
                         </p>
                         {hasDiscount && (
                             <>
-                                <span className="text-neutral-400 line-through">
+                                <span className="text-muted line-through">
                                     {product.oldPrice} грн
                                 </span>
-                                <span className="rounded bg-[#c46a4f] px-2 py-0.5 text-sm font-semibold text-white">
+                                <span className="rounded bg-badge-sale px-2 py-0.5 text-sm font-semibold text-white">
                                     −{discountPercent}%
                                 </span>
                             </>

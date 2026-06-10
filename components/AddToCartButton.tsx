@@ -24,7 +24,7 @@ export default function AddToCartButton({
 
   if (outOfStock) {
     return (
-      <p className="mt-6 rounded bg-neutral-700 py-3 text-center font-medium text-neutral-300">
+      <p className="mt-6 rounded border bg-surface py-3 text-center font-medium text-muted">
         Нет в наличии
       </p>
     );
@@ -33,13 +33,13 @@ export default function AddToCartButton({
   return (
     <div className="mt-6 flex flex-col gap-2">
       {product.stock != null && (
-        <p className="text-sm text-neutral-400">В наличии: {product.stock} шт</p>
+        <p className="text-sm text-muted">В наличии: {product.stock} шт</p>
       )}
 
       <button
         onClick={handleAdd}
         disabled={reachedLimit}
-        className="rounded bg-accent py-3 font-medium text-neutral-900 transition hover:opacity-90 disabled:opacity-50"
+        className="rounded bg-accent py-3 font-bold text-neutral-900 transition hover:opacity-90 disabled:opacity-50"
       >
         {reachedLimit
           ? "Больше нет в наличии"

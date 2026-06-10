@@ -78,7 +78,7 @@ export default function ProductListClient({ products }: Props) {
 
       {/* ТОВАРЫ */}
       {sorted.length === 0 ? (
-        <p className="text-neutral-400">Ничего не найдено.</p>
+        <p className="text-muted">Ничего не найдено.</p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {sorted.map((item) => (

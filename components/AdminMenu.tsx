@@ -30,12 +30,12 @@ export default function AdminMenu() {
       <button
         onClick={() => setOpen(true)}
         aria-label="Открыть меню"
-        className="fixed top-4 right-4 z-40 flex h-11 w-11 items-center justify-center rounded-full border bg-white text-gray-800 shadow transition hover:shadow-md"
+        className="fixed top-4 right-4 z-40 flex h-11 w-11 items-center justify-center rounded-full border bg-surface text-foreground shadow transition hover:shadow-md"
       >
         <span className="block w-5 space-y-1">
-          <span className="block h-0.5 bg-gray-800 rounded" />
-          <span className="block h-0.5 bg-gray-800 rounded" />
-          <span className="block h-0.5 bg-gray-800 rounded" />
+          <span className="block h-0.5 bg-foreground rounded" />
+          <span className="block h-0.5 bg-foreground rounded" />
+          <span className="block h-0.5 bg-foreground rounded" />
         </span>
       </button>
 

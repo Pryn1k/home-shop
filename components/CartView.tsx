@@ -28,7 +28,7 @@ export default function CartView() {
 
   if (items.length === 0) {
     return (
-      <div className="text-neutral-400">
+      <div className="text-muted">
         Корзина пуста.{" "}
         <Link href="/products" className="text-accent underline">
           Перейти к товарам →
@@ -86,9 +86,9 @@ export default function CartView() {
         {items.map((it) => (
           <div
             key={it.productId}
-            className="flex items-center gap-4 rounded-xl border p-3"
+            className="flex items-center gap-4 rounded-xl border bg-surface p-3"
           >
-            <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-neutral-800">
+            <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-img-bg">
               <Image
                 src={it.image}
                 alt={it.title}
@@ -169,7 +169,7 @@ export default function CartView() {
         <button
           type="submit"
           disabled={loading}
-          className="rounded bg-accent py-3 font-medium text-neutral-900 transition hover:opacity-90 disabled:opacity-60"
+          className="rounded bg-accent py-3 font-bold text-neutral-900 transition hover:opacity-90 disabled:opacity-60"
         >
           {loading ? "Отправка..." : "Оформить заказ"}
         </button>

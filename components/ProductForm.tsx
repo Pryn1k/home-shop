@@ -274,7 +274,7 @@ export default function ProductForm({
       <button
         type="submit"
         disabled={loading}
-        className="bg-accent text-neutral-900 font-medium py-2 rounded transition hover:opacity-90 disabled:opacity-60"
+        className="bg-accent text-neutral-900 font-bold py-2 rounded transition hover:opacity-90 disabled:opacity-60"
       >
         {loading
           ? "Сохранение..."

@@ -38,10 +38,10 @@ export default function ProductCard({
 
   return (
     <Link href={`/product/${id}`}>
-      <div className="border rounded-xl p-4 hover:shadow-lg transition cursor-pointer">
+      <div className="border bg-surface rounded-xl p-4 hover:shadow-lg transition cursor-pointer">
 
         {/* КАРТИНКА — адаптивная (резиновая), фикс. соотношение сторон */}
-        <div className="relative w-full aspect-[4/3] overflow-hidden rounded-lg bg-neutral-800">
+        <div className="relative w-full aspect-[4/3] overflow-hidden rounded-lg bg-img-bg">
           <Image
             src={image}
             alt={title}
@@ -53,18 +53,18 @@ export default function ProductCard({
           {/* бейджи слева сверху */}
           <div className="absolute left-2 top-2 flex flex-col gap-1">
             {outOfStock ? (
-              <span className="rounded-full bg-neutral-700 px-2 py-0.5 text-xs font-bold text-neutral-200">
+              <span className="rounded-full bg-neutral-700 px-2.5 py-1 text-[13px] font-bold text-neutral-100 shadow-md">
                 Нет в наличии
               </span>
             ) : (
               <>
                 {isNew && (
-                  <span className="rounded-full bg-accent px-2 py-0.5 text-xs font-bold text-neutral-900">
+                  <span className="rounded-full bg-badge-new px-2.5 py-1 text-[13px] font-bold text-white shadow-md">
                     NEW
                   </span>
                 )}
                 {hasDiscount && (
-                  <span className="rounded-full bg-[#c46a4f] px-2 py-0.5 text-xs font-bold text-white">
+                  <span className="rounded-full bg-badge-sale px-2.5 py-1 text-[13px] font-bold text-white shadow-md">
                     −{discountPercent}%
                   </span>
                 )}
@@ -72,10 +72,10 @@ export default function ProductCard({
             )}
           </div>
 
-          {/* цена справа сверху, на фоне (со старой ценой при скидке) */}
-          <span className="absolute right-2 top-2 flex items-center gap-1.5 rounded-lg bg-black/65 px-2.5 py-1 text-sm font-semibold backdrop-blur-sm">
+          {/* цена справа сверху — матовая плашка как в шапке (со старой ценой при скидке) */}
+          <span className="absolute right-2 top-2 flex items-center gap-1.5 rounded-lg border border-border bg-surface/80 px-2.5 py-1 text-sm font-semibold shadow-md backdrop-blur-sm">
             {hasDiscount && (
-              <span className="text-xs font-normal text-neutral-400 line-through">
+              <span className="text-xs font-normal text-muted line-through">
                 {oldPrice} грн
               </span>
             )}
