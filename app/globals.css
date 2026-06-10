@@ -66,6 +66,12 @@
   --font-mono: var(--font-geist-mono);
 }
 
+html {
+  /* всегда резервируем место под полосу прокрутки, чтобы контент не «прыгал»
+     между длинными и короткими страницами */
+  scrollbar-gutter: stable;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
