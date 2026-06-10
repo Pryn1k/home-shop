@@ -30,7 +30,8 @@ export default function ProductForm({
   const [oldPrice, setOldPrice] = useState(
     product?.oldPrice != null ? String(product.oldPrice) : ""
   );
-  const [category, setCategory] = useState(product?.category ?? "phones");
+  const [category, setCategory] = useState(product?.category ?? "");
+  const [categories, setCategories] = useState<string[]>([]);
   const [stock, setStock] = useState(
     product?.stock != null ? String(product.stock) : ""
   );
@@ -44,6 +45,24 @@ export default function ProductForm({
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // подгружаем список категорий из БД
+  useEffect(() => {
+    let active = true;
+    fetch("/api/categories", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((data) => {
+        if (!active) return;
+        const list: string[] = data.categories ?? [];
+        setCategories(list);
+        // в режиме добавления выбираем первую категорию по умолчанию
+        setCategory((cur) => cur || list[0] || "");
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, []);
 
   // освобождаем временные ссылки на превью при закрытии
   useEffect(() => {
@@ -256,8 +275,16 @@ export default function ProductForm({
         value={category}
         onChange={(e) => setCategory(e.target.value)}
       >
-        <option value="phones">Телефоны</option>
-        <option value="tv">TV</option>
+        {categories.length === 0 && <option value="">Нет категорий</option>}
+        {/* если у товара категория, которой уже нет в списке — всё равно показываем */}
+        {category && !categories.includes(category) && (
+          <option value={category}>{category}</option>
+        )}
+        {categories.map((c) => (
+          <option key={c} value={c}>
+            {c}
+          </option>
+        ))}
       </select>
 
       <input

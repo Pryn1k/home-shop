@@ -18,10 +18,15 @@ type Product = {
 
 type Props = {
   products: Product[];
+  categories?: string[];
   isAdmin?: boolean;
 };
 
-export default function ProductListClient({ products, isAdmin }: Props) {
+export default function ProductListClient({
+  products,
+  categories = [],
+  isAdmin,
+}: Props) {
   const searchParams = useSearchParams();
 
   const [search, setSearch] = useState(searchParams.get("search") ?? "");
@@ -63,8 +68,11 @@ export default function ProductListClient({ products, isAdmin }: Props) {
           onChange={(e) => setCategory(e.target.value)}
         >
           <option value="all">Все категории</option>
-          <option value="phones">Телефоны</option>
-          <option value="tv">TV</option>
+          {categories.map((c) => (
+            <option key={c} value={c}>
+              {c}
+            </option>
+          ))}
         </select>
 
         <select

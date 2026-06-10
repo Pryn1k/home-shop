@@ -4,6 +4,7 @@ import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import ProductForm from "./ProductForm";
+import CategoryManager from "./CategoryManager";
 
 export default function AdminMenu() {
   const pathname = usePathname();
@@ -11,6 +12,7 @@ export default function AdminMenu() {
 
   const [open, setOpen] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
+  const [catOpen, setCatOpen] = useState(false);
 
   // на странице логина меню не нужно
   if (pathname === "/admin/login") {
@@ -83,6 +85,16 @@ export default function AdminMenu() {
             🛠 Управление товарами
           </Link>
 
+          <button
+            onClick={() => {
+              setCatOpen(true);
+              setOpen(false);
+            }}
+            className="text-left rounded-lg px-3 py-2 hover:bg-gray-100 transition"
+          >
+            🏷 Категории
+          </button>
+
           <Link
             href="/admin/orders"
             onClick={() => setOpen(false)}
@@ -122,6 +134,32 @@ export default function AdminMenu() {
             </div>
 
             <ProductForm mode="add" onDone={() => setAddOpen(false)} />
+          </div>
+        </div>
+      )}
+
+      {/* МОДАЛКА «Категории» */}
+      {catOpen && (
+        <div
+          onClick={() => setCatOpen(false)}
+          className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-xl bg-white p-6 text-gray-900 shadow-xl"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold">Категории</h2>
+              <button
+                onClick={() => setCatOpen(false)}
+                aria-label="Закрыть"
+                className="text-2xl leading-none text-gray-500 hover:text-gray-900"
+              >
+                ×
+              </button>
+            </div>
+
+            <CategoryManager />
           </div>
         </div>
       )}
