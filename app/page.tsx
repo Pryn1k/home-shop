@@ -1,6 +1,9 @@
 import { getProducts } from "@/services/product.service";
 import ProductCard from "@/components/ProductCard";
 import Hero from "@/components/Hero";
+import Advantages from "@/components/Advantages";
+import About from "@/components/About";
+import Contacts from "@/components/Contacts";
 import Link from "next/link";
 
 // всегда подтягиваем свежий список товаров из базы
@@ -14,6 +17,8 @@ export default async function Home() {
     // -mt-16 убирает отступ сверху от body, чтобы Hero был вровень с верхом экрана
     <main className="-mt-16">
       <Hero />
+
+      <Advantages />
 
       <section className="p-6">
         <h2 className="text-2xl font-bold mb-6">
@@ -35,6 +40,10 @@ export default async function Home() {
           </Link>
         </div>
       </section>
+
+      <About />
+
+      <Contacts />
     </main>
   );
 }
