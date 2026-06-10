@@ -59,18 +59,11 @@ export default function AdminEditButton({
         typeof document !== "undefined" &&
         createPortal(
           <div
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setOpen(false);
-            }}
+            onClick={() => setOpen(false)}
             className="fixed inset-0 z-[70] flex items-center justify-center bg-black/40 p-4"
           >
             <div
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-              }}
+              onClick={(e) => e.stopPropagation()}
               className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-xl bg-white p-6 text-gray-900 shadow-xl"
             >
               <div className="mb-4 flex items-center justify-between">
