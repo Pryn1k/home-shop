@@ -148,13 +148,17 @@ export default function CartView() {
           placeholder="Ваше имя"
           value={name}
           onChange={(e) => setName(e.target.value)}
+          maxLength={100}
           required
         />
         <input
           className="rounded border p-2"
+          type="tel"
+          inputMode="tel"
           placeholder="Телефон"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
+          maxLength={30}
           required
         />
         <textarea
@@ -162,6 +166,7 @@ export default function CartView() {
           placeholder="Комментарий"
           value={comment}
           onChange={(e) => setComment(e.target.value)}
+          maxLength={1000}
         />
 
         {error && <p className="text-sm text-red-500">{error}</p>}

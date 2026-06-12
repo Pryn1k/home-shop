@@ -20,10 +20,39 @@ export async function POST(req: Request) {
       );
     }
 
+    const cleanName = name.trim();
+    const cleanPhone = phone.trim();
+    const cleanComment = (comment ?? "").trim();
+
+    // лимиты длины (анти-спам)
+    if (cleanName.length > 100 || cleanPhone.length > 30 || cleanComment.length > 1000) {
+      return NextResponse.json(
+        { success: false, error: "Слишком длинные данные" },
+        { status: 400 }
+      );
+    }
+
+    // телефон должен содержать вменяемое число цифр
+    const phoneDigits = cleanPhone.replace(/\D/g, "");
+    if (phoneDigits.length < 5 || phoneDigits.length > 20) {
+      return NextResponse.json(
+        { success: false, error: "Укажите корректный телефон" },
+        { status: 400 }
+      );
+    }
+
+    // слишком много разных позиций — отклоняем
+    if (items.length > 50) {
+      return NextResponse.json(
+        { success: false, error: "Слишком много позиций в заказе" },
+        { status: 400 }
+      );
+    }
+
     // нормализуем количество и собираем id (доверяем только productId и qty)
     const wanted = items
       .map((i) => ({ productId: String(i.productId), qty: Math.floor(Number(i.qty)) }))
-      .filter((i) => i.productId && i.qty > 0);
+      .filter((i) => i.productId && i.qty > 0 && i.qty <= 1000);
 
     if (wanted.length === 0) {
       return NextResponse.json(
@@ -85,9 +114,9 @@ export async function POST(req: Request) {
     // сохраняем заказ
     const { error } = await supabaseAdmin.from("orders").insert([
       {
-        name: name.trim(),
-        phone: phone.trim(),
-        comment: comment?.trim() || null,
+        name: cleanName,
+        phone: cleanPhone,
+        comment: cleanComment || null,
         items: orderItems,
         total,
         status: "new",
@@ -123,9 +152,9 @@ export async function POST(req: Request) {
 ${lines}
 
 💰 Сумма: ${total} грн
-👤 Имя: ${name.trim()}
-📱 Телефон: ${phone.trim()}
-💬 Комментарий: ${comment?.trim() || "—"}`;
+👤 Имя: ${cleanName}
+📱 Телефон: ${cleanPhone}
+💬 Комментарий: ${cleanComment || "—"}`;
 
     await fetch(
       `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`,
