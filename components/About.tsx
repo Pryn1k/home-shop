@@ -1,14 +1,16 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { shop } from "@/lib/shop";
 
 export default function About() {
   const sectionRef = useRef<HTMLElement>(null);
   const layerRef = useRef<HTMLDivElement>(null);
+  const [armed, setArmed] = useState(false); // JS навесил эффект (без JS — текст просто виден)
+  const [shown, setShown] = useState(false); // блок попал в зону видимости
 
+  // паралlax аврора-подложки
   useEffect(() => {
-    // уважаем «уменьшить движение» — без паралlax
     const reduce = window.matchMedia(
       "(prefers-reduced-motion: reduce)"
     ).matches;
@@ -23,9 +25,7 @@ export default function About() {
         if (!el || !layer) return;
         const rect = el.getBoundingClientRect();
         const vh = window.innerHeight || 1;
-        // прогресс прохождения секции через экран: -1 (снизу) … +1 (сверху)
         const progress = (rect.top + rect.height / 2 - vh / 2) / vh;
-        // фон смещается в противоход контенту — эффект параллакса
         layer.style.transform = `translate3d(0, ${(-progress * 70).toFixed(
           1
         )}px, 0)`;
@@ -41,6 +41,27 @@ export default function About() {
       cancelAnimationFrame(raf);
     };
   }, []);
+
+  // появление текста по строкам при прокрутке к блоку
+  useEffect(() => {
+    setArmed(true);
+    const el = sectionRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setShown(true);
+          obs.disconnect();
+        }
+      },
+      { threshold: 0.25 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  // разбиваем текст на предложения — каждое выезжает отдельной «строкой»
+  const sentences = shop.about.split(/(?<=\.)\s+/).filter(Boolean);
 
   return (
     <section
@@ -58,9 +79,23 @@ export default function About() {
         <span className="hero-blob hero-blob-3" />
       </div>
 
-      <div className="mx-auto max-w-3xl text-center">
-        <h2 className="mb-4 text-2xl font-bold">О нас</h2>
-        <p className="text-lg leading-relaxed">{shop.about}</p>
+      <div
+        className={`mx-auto max-w-3xl text-center ${
+          armed ? "reveal-armed" : ""
+        } ${shown ? "reveal-visible" : ""}`}
+      >
+        <h2 className="reveal-line mb-4 text-2xl font-bold">
+          <span>О нас</span>
+        </h2>
+        <p className="text-lg leading-relaxed">
+          {sentences.map((s, i) => (
+            <span key={i} className="reveal-line">
+              <span style={{ transitionDelay: `${0.12 * (i + 1)}s` }}>
+                {s}{" "}
+              </span>
+            </span>
+          ))}
+        </p>
       </div>
     </section>
   );

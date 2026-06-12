@@ -89,6 +89,32 @@ body {
   }
 }
 
+/* ===== Появление текста по строкам (блок «О нас») ===== */
+/* hide-состояние применяется только когда JS навесил .reveal-armed —
+   значит без JS текст просто виден, ничего не ломается */
+.reveal-line {
+  display: block;
+  overflow: hidden;
+}
+.reveal-armed .reveal-line > span {
+  display: inline-block;
+  transform: translateY(115%);
+  opacity: 0;
+  transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.65s ease;
+  will-change: transform, opacity;
+}
+.reveal-armed.reveal-visible .reveal-line > span {
+  transform: translateY(0);
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal-armed .reveal-line > span {
+    transform: none;
+    opacity: 1;
+    transition: none;
+  }
+}
+
 /* ===== Анимации для Hero на главной ===== */
 
 /* "Магазин" выезжает слева */
