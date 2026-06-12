@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { Order } from "@/types/order";
+import { deliveryLabel, paymentLabel } from "@/lib/orderLabels";
 
 export default function OrderCard({ order }: { order: Order }) {
   const [busy, setBusy] = useState(false);
@@ -83,6 +84,15 @@ export default function OrderCard({ order }: { order: Order }) {
         <a href={`tel:${order.phone}`} className="text-accent hover:underline">
           {order.phone}
         </a>
+      </p>
+      <p>
+        <b>Получение:</b> {deliveryLabel(order.delivery)}
+        {order.delivery === "nova_poshta" && order.deliveryAddress
+          ? ` — ${order.deliveryAddress}`
+          : ""}
+      </p>
+      <p>
+        <b>Оплата:</b> {paymentLabel(order.payment)}
       </p>
       {order.comment && (
         <p>

@@ -16,4 +16,7 @@ export type Order = {
   createdAt: string;
   items: OrderItem[] | null;
   total: number | null;
+  delivery: string;
+  payment: string;
+  deliveryAddress: string | null;
 };

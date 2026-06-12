@@ -6,16 +6,32 @@ type IncomingItem = { productId: string; qty: number };
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { name, phone, comment, items } = body as {
+    const { name, phone, comment, items, delivery, payment, address } = body as {
       name: string;
       phone: string;
       comment?: string;
       items: IncomingItem[];
+      delivery?: string;
+      payment?: string;
+      address?: string;
     };
 
     if (!name?.trim() || !phone?.trim() || !Array.isArray(items) || items.length === 0) {
       return NextResponse.json(
         { success: false, error: "Укажите имя, телефон и товары" },
+        { status: 400 }
+      );
+    }
+
+    // способ получения и оплаты — только из известного набора
+    const deliveryMethod = delivery === "nova_poshta" ? "nova_poshta" : "pickup";
+    const paymentMethod = payment === "prepaid" ? "prepaid" : "on_receipt";
+    const cleanAddress = (address ?? "").trim().slice(0, 300);
+
+    // при доставке Новой почтой адрес отделения обязателен
+    if (deliveryMethod === "nova_poshta" && !cleanAddress) {
+      return NextResponse.json(
+        { success: false, error: "Укажите город и отделение Новой почты" },
         { status: 400 }
       );
     }
@@ -123,6 +139,10 @@ export async function POST(req: Request) {
           items: orderItems,
           total,
           status: "new",
+          delivery: deliveryMethod,
+          payment: paymentMethod,
+          delivery_address:
+            deliveryMethod === "nova_poshta" ? cleanAddress : null,
         },
       ])
       .select("order_no")
@@ -152,11 +172,21 @@ export async function POST(req: Request) {
       )
       .join("\n");
 
+    const deliveryLine =
+      deliveryMethod === "nova_poshta"
+        ? `🚚 Доставка: Новая почта — ${cleanAddress}`
+        : "🏬 Получение: Самовывоз из магазина";
+    const paymentLine = `💳 Оплата: ${
+      paymentMethod === "prepaid" ? "Предоплата" : "При получении"
+    }`;
+
     const message = `🛒 Новый заказ
 
 ${lines}
 
 💰 Сумма: ${total} грн
+${deliveryLine}
+${paymentLine}
 👤 Имя: ${cleanName}
 📱 Телефон: ${cleanPhone}
 💬 Комментарий: ${cleanComment || "—"}`;

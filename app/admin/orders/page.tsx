@@ -24,6 +24,9 @@ export default async function AdminOrdersPage() {
     createdAt: o.created_at,
     items: o.items ?? null,
     total: o.total ?? null,
+    delivery: o.delivery ?? "pickup",
+    payment: o.payment ?? "on_receipt",
+    deliveryAddress: o.delivery_address ?? null,
   }));
 
   const total = orders.length;

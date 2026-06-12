@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useCart } from "@/context/CartContext";
 import { shop } from "@/lib/shop";
+import { deliveryLabel, paymentLabel } from "@/lib/orderLabels";
 
 export default function CartView() {
   const { items, setQty, remove, total, clear } = useCart();
@@ -12,6 +13,9 @@ export default function CartView() {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [comment, setComment] = useState("");
+  const [delivery, setDelivery] = useState<"pickup" | "nova_poshta">("pickup");
+  const [payment, setPayment] = useState<"on_receipt" | "prepaid">("on_receipt");
+  const [address, setAddress] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [confirmed, setConfirmed] = useState<{
@@ -21,6 +25,9 @@ export default function CartView() {
     name: string;
     phone: string;
     date: string;
+    delivery: "pickup" | "nova_poshta";
+    payment: "on_receipt" | "prepaid";
+    address: string;
   } | null>(null);
 
   if (confirmed) {
@@ -66,9 +73,33 @@ export default function CartView() {
             <p>
               Телефон: <span className="text-foreground">{confirmed.phone}</span>
             </p>
+            <p>
+              Получение:{" "}
+              <span className="text-foreground">
+                {deliveryLabel(confirmed.delivery)}
+                {confirmed.delivery === "nova_poshta" && confirmed.address
+                  ? ` — ${confirmed.address}`
+                  : ""}
+              </span>
+            </p>
+            <p>
+              Оплата:{" "}
+              <span className="text-foreground">
+                {paymentLabel(confirmed.payment)}
+              </span>
+            </p>
           </div>
 
           <div className="mt-4 border-t border-border pt-4 text-center text-sm text-muted">
+            {confirmed.delivery === "pickup" ? (
+              <p className="mb-2 font-medium text-foreground">
+                Сохраните чек и предъявите его при получении в магазине.
+              </p>
+            ) : (
+              <p className="mb-2 font-medium text-foreground">
+                Отправим Новой почтой после подтверждения.
+              </p>
+            )}
             <p>{shop.address}</p>
             <p>{shop.phone}</p>
             <p className="mt-2">
@@ -114,6 +145,10 @@ export default function CartView() {
       setError("Укажите имя и телефон");
       return;
     }
+    if (delivery === "nova_poshta" && !address.trim()) {
+      setError("Укажите город и отделение Новой почты");
+      return;
+    }
 
     setLoading(true);
     setError("");
@@ -126,6 +161,9 @@ export default function CartView() {
           name,
           phone,
           comment,
+          delivery,
+          payment,
+          address,
           items: items.map((i) => ({
             productId: i.productId,
             title: i.title,
@@ -150,6 +188,9 @@ export default function CartView() {
           name: name.trim(),
           phone: phone.trim(),
           date: new Date().toLocaleString("ru-RU"),
+          delivery,
+          payment,
+          address: address.trim(),
         };
         clear();
         setConfirmed(snapshot);
@@ -247,6 +288,68 @@ export default function CartView() {
           maxLength={30}
           required
         />
+        {/* СПОСОБ ПОЛУЧЕНИЯ */}
+        <fieldset className="rounded border border-border p-3">
+          <legend className="px-1 text-sm font-medium text-muted">
+            Способ получения
+          </legend>
+          <label className="flex cursor-pointer items-center gap-2 py-1">
+            <input
+              type="radio"
+              name="delivery"
+              className="accent-accent"
+              checked={delivery === "pickup"}
+              onChange={() => setDelivery("pickup")}
+            />
+            <span>Самовывоз из магазина</span>
+          </label>
+          <label className="flex cursor-pointer items-center gap-2 py-1">
+            <input
+              type="radio"
+              name="delivery"
+              className="accent-accent"
+              checked={delivery === "nova_poshta"}
+              onChange={() => setDelivery("nova_poshta")}
+            />
+            <span>Доставка Новой почтой</span>
+          </label>
+          {delivery === "nova_poshta" && (
+            <input
+              className="mt-2 w-full rounded border border-border p-2"
+              placeholder="Город и № отделения Новой почты"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              maxLength={300}
+              required
+            />
+          )}
+        </fieldset>
+
+        {/* ОПЛАТА */}
+        <fieldset className="rounded border border-border p-3">
+          <legend className="px-1 text-sm font-medium text-muted">Оплата</legend>
+          <label className="flex cursor-pointer items-center gap-2 py-1">
+            <input
+              type="radio"
+              name="payment"
+              className="accent-accent"
+              checked={payment === "on_receipt"}
+              onChange={() => setPayment("on_receipt")}
+            />
+            <span>При получении</span>
+          </label>
+          <label className="flex cursor-pointer items-center gap-2 py-1">
+            <input
+              type="radio"
+              name="payment"
+              className="accent-accent"
+              checked={payment === "prepaid"}
+              onChange={() => setPayment("prepaid")}
+            />
+            <span>Предоплата</span>
+          </label>
+        </fieldset>
+
         <textarea
           className="rounded border p-2"
           placeholder="Комментарий"
