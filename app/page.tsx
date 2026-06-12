@@ -20,7 +20,7 @@ export default async function Home() {
 
       <Advantages />
 
-      <section className="p-6">
+      <section className="mx-auto max-w-6xl p-6">
         <h2 className="text-2xl font-bold mb-6">
           Новинки
         </h2>

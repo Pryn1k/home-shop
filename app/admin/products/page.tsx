@@ -7,7 +7,7 @@ export default async function AdminProductsPage() {
   const products = await getProducts();
 
   return (
-    <main className="p-6">
+    <main className="mx-auto w-full max-w-5xl p-6">
       <h1 className="text-2xl font-bold mb-6">
         Управление товарами
       </h1>
