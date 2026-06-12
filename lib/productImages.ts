@@ -7,6 +7,15 @@ type OrderItem = { k: "url"; v: string } | { k: "new"; v: number };
 
 const BUCKET = "product-images";
 
+// разрешённые типы изображений и расширение для каждого (берём из MIME, не из имени файла)
+const EXT_BY_TYPE: Record<string, string> = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+  "image/gif": "gif",
+};
+const MAX_FILE_BYTES = 5 * 1024 * 1024; // 5 МБ на файл
+
 /**
  * Собирает финальный набор картинок товара из данных формы:
  * загружает новые файлы в Storage, сохраняет порядок, возвращает
@@ -31,7 +40,15 @@ export async function buildImagesFromForm(
   // загружаем новые файлы по порядку
   const uploadedUrls: string[] = [];
   for (const file of newFiles) {
-    const ext = file.name.split(".").pop() || "jpg";
+    // валидация типа и размера на сервере (клиентский accept="image/*" — не защита)
+    const ext = EXT_BY_TYPE[file.type];
+    if (!ext) {
+      return { error: "Можно загружать только изображения (jpg, png, webp, gif)" };
+    }
+    if (file.size > MAX_FILE_BYTES) {
+      return { error: "Файл слишком большой (максимум 5 МБ)" };
+    }
+
     const fileName = `${Date.now()}-${uploadedUrls.length}.${ext}`;
 
     const { error: uploadError } = await supabaseAdmin.storage
