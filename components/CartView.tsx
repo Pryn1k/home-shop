@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useCart } from "@/context/CartContext";
+import { shop } from "@/lib/shop";
 
 export default function CartView() {
   const { items, setQty, remove, total, clear } = useCart();
@@ -15,32 +16,83 @@ export default function CartView() {
   const [error, setError] = useState("");
   const [confirmed, setConfirmed] = useState<{
     orderNo: number | null;
+    items: { title: string; price: number; qty: number }[];
     total: number;
-    count: number;
+    name: string;
+    phone: string;
+    date: string;
   } | null>(null);
 
   if (confirmed) {
     return (
-      <div className="rounded-xl border border-border bg-surface p-6 text-center">
-        <p className="text-2xl">✅</p>
-        <h2 className="mt-2 text-xl font-bold">
-          {confirmed.orderNo != null
-            ? `Заказ №${confirmed.orderNo} принят`
-            : "Заказ принят"}
-        </h2>
-        <p className="mt-2 text-muted">
-          {confirmed.count} тов. на сумму{" "}
-          <span className="font-semibold text-accent">{confirmed.total} грн</span>
-        </p>
-        <p className="mt-1 text-muted">
-          Мы свяжемся с вами по телефону для подтверждения.
-        </p>
-        <Link
-          href="/products"
-          className="mt-4 inline-block rounded-lg bg-accent px-5 py-2.5 font-bold text-neutral-900 transition hover:opacity-90"
-        >
-          Продолжить покупки
-        </Link>
+      <div className="flex flex-col gap-4">
+        {/* ЧЕК (печатается отдельно) */}
+        <div className="receipt-printable rounded-xl border border-border bg-surface p-6">
+          <div className="text-center">
+            <p className="text-2xl">✅</p>
+            <h2 className="mt-1 text-xl font-bold">
+              {confirmed.orderNo != null
+                ? `Заказ №${confirmed.orderNo} принят`
+                : "Заказ принят"}
+            </h2>
+            <p className="mt-1 text-sm text-muted">{confirmed.date}</p>
+          </div>
+
+          <div className="mt-5 border-t border-border pt-4">
+            <p className="mb-2 font-semibold">{shop.name}</p>
+            <ul className="flex flex-col gap-1 text-sm">
+              {confirmed.items.map((it, i) => (
+                <li key={i} className="flex justify-between gap-3">
+                  <span>
+                    {it.title} × {it.qty}
+                  </span>
+                  <span className="whitespace-nowrap">
+                    {it.price * it.qty} грн
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-3 flex justify-between border-t border-border pt-3 text-lg font-bold">
+              <span>Итого:</span>
+              <span className="text-accent">{confirmed.total} грн</span>
+            </div>
+          </div>
+
+          <div className="mt-4 border-t border-border pt-4 text-sm text-muted">
+            <p>
+              Покупатель:{" "}
+              <span className="text-foreground">{confirmed.name}</span>
+            </p>
+            <p>
+              Телефон: <span className="text-foreground">{confirmed.phone}</span>
+            </p>
+          </div>
+
+          <div className="mt-4 border-t border-border pt-4 text-center text-sm text-muted">
+            <p>{shop.address}</p>
+            <p>{shop.phone}</p>
+            <p className="mt-2">
+              Спасибо за заказ! Мы свяжемся с вами для подтверждения.
+            </p>
+          </div>
+        </div>
+
+        {/* КНОПКИ (не печатаются) */}
+        <div className="flex flex-wrap justify-center gap-3 print:hidden">
+          <button
+            type="button"
+            onClick={() => window.print()}
+            className="rounded-lg bg-accent px-5 py-2.5 font-bold text-neutral-900 transition hover:opacity-90"
+          >
+            🧾 Скачать чек
+          </button>
+          <Link
+            href="/products"
+            className="rounded-lg border border-accent px-5 py-2.5 font-medium text-accent transition hover:bg-accent hover:text-neutral-900"
+          >
+            Продолжить покупки
+          </Link>
+        </div>
       </div>
     );
   }
@@ -86,11 +138,21 @@ export default function CartView() {
 
       const data = await res.json();
       if (data.success) {
-        // фиксируем итог до очистки корзины
-        const orderTotal = total;
-        const itemCount = items.reduce((n, i) => n + i.qty, 0);
+        // снимок заказа до очистки корзины — для чека
+        const snapshot = {
+          orderNo: data.orderNo ?? null,
+          items: items.map((i) => ({
+            title: i.title,
+            price: i.price,
+            qty: i.qty,
+          })),
+          total,
+          name: name.trim(),
+          phone: phone.trim(),
+          date: new Date().toLocaleString("ru-RU"),
+        };
         clear();
-        setConfirmed({ orderNo: data.orderNo ?? null, total: orderTotal, count: itemCount });
+        setConfirmed(snapshot);
       } else {
         setError(data.error || "Не удалось оформить заказ");
       }
@@ -179,7 +241,9 @@ export default function CartView() {
           inputMode="tel"
           placeholder="Телефон"
           value={phone}
-          onChange={(e) => setPhone(e.target.value)}
+          onChange={(e) =>
+            setPhone(e.target.value.replace(/[^\d+\s()-]/g, ""))
+          }
           maxLength={30}
           required
         />

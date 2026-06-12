@@ -32,11 +32,12 @@ export async function POST(req: Request) {
       );
     }
 
-    // телефон должен содержать вменяемое число цифр
+    // телефон: только телефонные символы (без букв) и вменяемое число цифр
+    const phoneFormatOk = /^[+\d\s()-]+$/.test(cleanPhone);
     const phoneDigits = cleanPhone.replace(/\D/g, "");
-    if (phoneDigits.length < 5 || phoneDigits.length > 20) {
+    if (!phoneFormatOk || phoneDigits.length < 5 || phoneDigits.length > 20) {
       return NextResponse.json(
-        { success: false, error: "Укажите корректный телефон" },
+        { success: false, error: "Укажите корректный телефон (только цифры)" },
         { status: 400 }
       );
     }

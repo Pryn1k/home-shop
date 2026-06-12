@@ -89,6 +89,27 @@ body {
   }
 }
 
+/* ===== Печать чека: показываем только сам чек ===== */
+@media print {
+  body * {
+    visibility: hidden !important;
+  }
+  .receipt-printable,
+  .receipt-printable * {
+    visibility: visible !important;
+    color: #000000 !important;
+    border-color: #cccccc !important;
+  }
+  .receipt-printable {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    border: none !important;
+    box-shadow: none !important;
+    background: #ffffff !important;
+  }
+}
+
 /* ===== Появление текста по строкам (блок «О нас») ===== */
 /* hide-состояние применяется только когда JS навесил .reveal-armed —
    значит без JS текст просто виден, ничего не ломается */
