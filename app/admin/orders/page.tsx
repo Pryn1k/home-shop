@@ -15,6 +15,7 @@ export default async function AdminOrdersPage() {
   // приводим поля базы (snake_case) к типу Order (camelCase)
   const orders: Order[] = (data ?? []).map((o) => ({
     id: o.id,
+    orderNo: o.order_no ?? null,
     productId: o.product_id,
     name: o.name,
     phone: o.phone,

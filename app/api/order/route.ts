@@ -111,17 +111,21 @@ export async function POST(req: Request) {
     // итог считаем на сервере
     const total = orderItems.reduce((sum, i) => sum + i.price * i.qty, 0);
 
-    // сохраняем заказ
-    const { error } = await supabaseAdmin.from("orders").insert([
-      {
-        name: cleanName,
-        phone: cleanPhone,
-        comment: cleanComment || null,
-        items: orderItems,
-        total,
-        status: "new",
-      },
-    ]);
+    // сохраняем заказ и забираем его номер
+    const { data: created, error } = await supabaseAdmin
+      .from("orders")
+      .insert([
+        {
+          name: cleanName,
+          phone: cleanPhone,
+          comment: cleanComment || null,
+          items: orderItems,
+          total,
+          status: "new",
+        },
+      ])
+      .select("order_no")
+      .single();
 
     if (error) {
       console.error(error);
@@ -168,7 +172,7 @@ ${lines}
       }
     );
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, orderNo: created?.order_no ?? null });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ success: false }, { status: 500 });

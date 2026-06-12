@@ -7,6 +7,7 @@ export type OrderItem = {
 
 export type Order = {
   id: number;
+  orderNo: number | null;
   productId: string | null;
   name: string;
   phone: string;

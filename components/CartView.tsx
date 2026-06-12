@@ -13,14 +13,33 @@ export default function CartView() {
   const [comment, setComment] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [done, setDone] = useState(false);
+  const [confirmed, setConfirmed] = useState<{
+    orderNo: number | null;
+    total: number;
+    count: number;
+  } | null>(null);
 
-  if (done) {
+  if (confirmed) {
     return (
-      <div className="text-green-500">
-        Заказ отправлен! Мы свяжемся с вами.{" "}
-        <Link href="/" className="text-accent underline">
-          На главную
+      <div className="rounded-xl border border-border bg-surface p-6 text-center">
+        <p className="text-2xl">✅</p>
+        <h2 className="mt-2 text-xl font-bold">
+          {confirmed.orderNo != null
+            ? `Заказ №${confirmed.orderNo} принят`
+            : "Заказ принят"}
+        </h2>
+        <p className="mt-2 text-muted">
+          {confirmed.count} тов. на сумму{" "}
+          <span className="font-semibold text-accent">{confirmed.total} грн</span>
+        </p>
+        <p className="mt-1 text-muted">
+          Мы свяжемся с вами по телефону для подтверждения.
+        </p>
+        <Link
+          href="/products"
+          className="mt-4 inline-block rounded-lg bg-accent px-5 py-2.5 font-bold text-neutral-900 transition hover:opacity-90"
+        >
+          Продолжить покупки
         </Link>
       </div>
     );
@@ -67,10 +86,13 @@ export default function CartView() {
 
       const data = await res.json();
       if (data.success) {
+        // фиксируем итог до очистки корзины
+        const orderTotal = total;
+        const itemCount = items.reduce((n, i) => n + i.qty, 0);
         clear();
-        setDone(true);
+        setConfirmed({ orderNo: data.orderNo ?? null, total: orderTotal, count: itemCount });
       } else {
-        setError("Не удалось оформить заказ");
+        setError(data.error || "Не удалось оформить заказ");
       }
     } catch {
       setError("Ошибка сети");
