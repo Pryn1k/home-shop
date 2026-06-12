@@ -43,6 +43,7 @@ export default function ProductGallery({
           src={images[selected]}
           alt={title}
           fill
+          priority
           sizes="(max-width: 768px) 100vw, 672px"
           className="object-cover"
         />

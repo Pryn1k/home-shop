@@ -14,6 +14,7 @@ type Props = {
   category?: string;
   images?: string[] | null;
   isAdmin?: boolean;
+  priority?: boolean;
 };
 
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
@@ -29,6 +30,7 @@ export default function ProductCard({
   category,
   images,
   isAdmin,
+  priority,
 }: Props) {
   // товар считается новым неделю с момента создания
   const isNew = createdAt
@@ -56,6 +58,7 @@ export default function ProductCard({
             src={image}
             alt={title}
             fill
+            priority={priority}
             sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
             className={`object-cover ${outOfStock ? "opacity-50" : ""}`}
           />

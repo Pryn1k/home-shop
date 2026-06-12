@@ -91,8 +91,13 @@ export default function ProductListClient({
         <p className="text-muted">Ничего не найдено.</p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {sorted.map((item) => (
-            <ProductCard key={item.id} {...item} isAdmin={isAdmin} />
+          {sorted.map((item, i) => (
+            <ProductCard
+              key={item.id}
+              {...item}
+              isAdmin={isAdmin}
+              priority={i < 3}
+            />
           ))}
         </div>
       )}
