@@ -38,7 +38,7 @@ export default async function AdminOrdersPage() {
       <h1 className="text-2xl font-bold mb-6">
         📦 Заказы
       </h1>
-      <div className="grid grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
 
         <div className="border p-3 rounded">
           📦 Всего: {total}

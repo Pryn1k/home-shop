@@ -62,7 +62,7 @@ export default function AdminProductsClient({
           return (
             <div
               key={p.id}
-              className="flex items-center gap-4 border rounded-xl p-3"
+              className="flex flex-wrap items-center gap-3 border rounded-xl p-3"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
