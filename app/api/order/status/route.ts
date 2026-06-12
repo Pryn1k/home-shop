@@ -1,13 +1,12 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { isAdmin } from "@/lib/auth";
+
+const ALLOWED_STATUSES = ["new", "processing", "done"];
 
 export async function POST(req: Request) {
   // только админ может менять статус заказа
-  const cookieStore = await cookies();
-  const isAdmin = cookieStore.get("admin-auth")?.value === "true";
-
-  if (!isAdmin) {
+  if (!(await isAdmin())) {
     return NextResponse.json(
       { success: false, error: "Нет доступа" },
       { status: 401 }
@@ -15,6 +14,14 @@ export async function POST(req: Request) {
   }
 
   const { id, status } = await req.json();
+
+  // принимаем только известные статусы (фикс №5)
+  if (!ALLOWED_STATUSES.includes(status)) {
+    return NextResponse.json(
+      { success: false, error: "Неизвестный статус" },
+      { status: 400 }
+    );
+  }
 
   // обновляем статус в базе и забираем обновлённую строку
   const { data: updatedOrder, error } = await supabaseAdmin

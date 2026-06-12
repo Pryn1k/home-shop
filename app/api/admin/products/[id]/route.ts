@@ -1,15 +1,10 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import {
   buildImagesFromForm,
   removeImagesFromStorage,
 } from "@/lib/productImages";
-
-async function isAdmin() {
-  const cookieStore = await cookies();
-  return cookieStore.get("admin-auth")?.value === "true";
-}
+import { isAdmin } from "@/lib/auth";
 
 // ИЗМЕНИТЬ товар
 export async function PATCH(

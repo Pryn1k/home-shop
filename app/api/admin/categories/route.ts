@@ -1,15 +1,10 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
-
-async function ensureAdmin() {
-  const cookieStore = await cookies();
-  return cookieStore.get("admin-auth")?.value === "true";
-}
+import { isAdmin } from "@/lib/auth";
 
 // Добавить категорию
 export async function POST(req: Request) {
-  if (!(await ensureAdmin())) {
+  if (!(await isAdmin())) {
     return NextResponse.json({ success: false, error: "Нет доступа" }, { status: 401 });
   }
 
@@ -52,7 +47,7 @@ export async function POST(req: Request) {
 
 // Удалить категорию (запрещаем, если в ней есть товары)
 export async function DELETE(req: Request) {
-  if (!(await ensureAdmin())) {
+  if (!(await isAdmin())) {
     return NextResponse.json({ success: false, error: "Нет доступа" }, { status: 401 });
   }
 

@@ -1,14 +1,11 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { buildImagesFromForm } from "@/lib/productImages";
+import { isAdmin } from "@/lib/auth";
 
 export async function POST(req: Request) {
   // 1. Проверяем, что запрос от залогиненного админа
-  const cookieStore = await cookies();
-  const isAdmin = cookieStore.get("admin-auth")?.value === "true";
-
-  if (!isAdmin) {
+  if (!(await isAdmin())) {
     return NextResponse.json(
       { success: false, error: "Нет доступа" },
       { status: 401 }
