@@ -6,6 +6,8 @@ import ProductListClient from "@/components/ProductListClient";
 
 export const dynamic = "force-dynamic";
 
+export const metadata = { title: "Все товары" };
+
 export default async function ProductsPage() {
   const [products, categories, admin] = await Promise.all([
     getProducts(),

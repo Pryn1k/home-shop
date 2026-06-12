@@ -26,8 +26,19 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Магазин Домашний",
+  metadataBase: new URL("https://home-shop-two.vercel.app"),
+  title: {
+    default: "Магазин Домашний",
+    template: "%s — Магазин Домашний",
+  },
   description: "Техника для дома: телефоны, телевизоры и не только.",
+  openGraph: {
+    type: "website",
+    locale: "ru_RU",
+    siteName: "Магазин Домашний",
+    title: "Магазин Домашний",
+    description: "Техника для дома: телефоны, телевизоры и не только.",
+  },
 };
 
 export default function RootLayout({

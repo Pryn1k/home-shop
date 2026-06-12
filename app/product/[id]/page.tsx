@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getProduct } from "@/services/product.service";
@@ -7,6 +8,26 @@ import AdminEditButton from "@/components/AdminEditButton";
 import ProductGallery from "@/components/ProductGallery";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const product = await getProduct(id);
+
+  if (!product) return { title: "Товар не найден" };
+
+  return {
+    title: product.title,
+    description: `${product.title} — ${product.price} грн. Магазин Домашний.`,
+    openGraph: {
+      title: product.title,
+      images: product.image ? [product.image] : undefined,
+    },
+  };
+}
 
 export default async function ProductPage({
   params,
