@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { getProduct } from "@/services/product.service";
 import { isAdmin } from "@/lib/auth";
 import AddToCartButton from "@/components/AddToCartButton";
@@ -17,7 +18,7 @@ export default async function ProductPage({
   const [product, admin] = await Promise.all([getProduct(id), isAdmin()]);
 
   if (!product) {
-    return <div>Товар не найден</div>;
+    notFound();
   }
 
   const discountPercent =

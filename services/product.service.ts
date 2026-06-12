@@ -22,7 +22,7 @@ export const getProduct = async (id: string): Promise<Product | null> => {
     .from("products")
     .select("id, title, price, oldPrice:old_price, image, images, category, stock, createdAt:created_at")
     .eq("id", id)
-    .single();
+    .maybeSingle();
 
   if (error) {
     console.error("getProduct error:", error);
