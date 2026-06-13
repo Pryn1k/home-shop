@@ -128,7 +128,37 @@ export async function POST(req: Request) {
     // итог считаем на сервере
     const total = orderItems.reduce((sum, i) => sum + i.price * i.qty, 0);
 
-    // сохраняем заказ и забираем его номер
+    // АТОМАРНО списываем остатки — защита от перепродажи при одновременных заказах.
+    // Функция в БД проверяет и уменьшает остаток в одной транзакции (с блокировкой строки):
+    // если хоть на одну позицию не хватает — НИЧЕГО не списывается.
+    const decItems = orderItems.map((i) => ({ id: i.productId, qty: i.qty }));
+    const { error: decErr } = await supabaseAdmin.rpc("decrement_stocks", {
+      p_items: decItems,
+    });
+
+    if (decErr) {
+      const msg = decErr.message || "";
+      if (msg.includes("insufficient_stock")) {
+        return NextResponse.json(
+          {
+            success: false,
+            error:
+              "К сожалению, товар только что закончился. Обновите страницу и попробуйте снова.",
+          },
+          { status: 409 }
+        );
+      }
+      if (msg.includes("product_missing")) {
+        return NextResponse.json(
+          { success: false, error: "Товар не найден" },
+          { status: 400 }
+        );
+      }
+      console.error("decrement_stocks error:", decErr);
+      return NextResponse.json({ success: false }, { status: 500 });
+    }
+
+    // сохраняем заказ и забираем его номер (остатки уже списаны выше)
     const { data: created, error } = await supabaseAdmin
       .from("orders")
       .insert([
@@ -150,18 +180,11 @@ export async function POST(req: Request) {
 
     if (error) {
       console.error(error);
+      // заказ не создался — возвращаем списанные остатки обратно (best-effort)
+      await supabaseAdmin.rpc("decrement_stocks", {
+        p_items: decItems.map((i) => ({ id: i.id, qty: -i.qty })),
+      });
       return NextResponse.json({ success: false }, { status: 500 });
-    }
-
-    // уменьшаем остатки заказанных товаров
-    for (const it of orderItems) {
-      const product = byId.get(it.productId);
-      if (product?.stock != null) {
-        await supabaseAdmin
-          .from("products")
-          .update({ stock: product.stock - it.qty })
-          .eq("id", it.productId);
-      }
     }
 
     // Telegram-уведомление (значения серверные)
