@@ -124,6 +124,16 @@ export default function CartView() {
             Продолжить покупки
           </Link>
         </div>
+
+        {confirmed.orderNo != null && (
+          <p className="text-center text-sm text-muted print:hidden">
+            Статус заказа можно проверить на странице{" "}
+            <Link href="/order" className="text-accent hover:underline">
+              «Проверить заказ»
+            </Link>{" "}
+            по номеру и телефону.
+          </p>
+        )}
       </div>
     );
   }

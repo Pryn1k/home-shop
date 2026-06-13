@@ -51,6 +51,9 @@ export default function Footer() {
           <Link href="/#contacts" className="mt-2 hover:text-accent">
             Как нас найти →
           </Link>
+          <Link href="/order" className="hover:text-accent">
+            Проверить заказ →
+          </Link>
         </div>
       </div>
 
