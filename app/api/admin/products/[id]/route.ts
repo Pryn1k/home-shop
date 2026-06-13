@@ -24,6 +24,8 @@ export async function PATCH(
     const formData = await req.formData();
 
     const title = (formData.get("title") as string)?.trim();
+    const descriptionRaw = (formData.get("description") as string)?.trim();
+    const description = descriptionRaw ? descriptionRaw.slice(0, 2000) : null;
     const price = Number(formData.get("price"));
     const oldPriceRaw = formData.get("oldPrice");
     const old_price = oldPriceRaw ? Number(oldPriceRaw) : null;
@@ -57,6 +59,7 @@ export async function PATCH(
       .from("products")
       .update({
         title,
+        description,
         price,
         old_price,
         category,

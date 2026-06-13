@@ -16,6 +16,8 @@ export async function POST(req: Request) {
     const formData = await req.formData();
 
     const title = (formData.get("title") as string)?.trim();
+    const descriptionRaw = (formData.get("description") as string)?.trim();
+    const description = descriptionRaw ? descriptionRaw.slice(0, 2000) : null;
     const price = Number(formData.get("price"));
     const oldPriceRaw = formData.get("oldPrice");
     const old_price = oldPriceRaw ? Number(oldPriceRaw) : null;
@@ -44,6 +46,7 @@ export async function POST(req: Request) {
       .insert([
         {
           title,
+          description,
           price,
           old_price,
           category,

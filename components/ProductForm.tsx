@@ -26,6 +26,7 @@ export default function ProductForm({
   const nextId = () => ++idCounter.current;
 
   const [title, setTitle] = useState(product?.title ?? "");
+  const [description, setDescription] = useState(product?.description ?? "");
   const [price, setPrice] = useState(product ? String(product.price) : "");
   const [oldPrice, setOldPrice] = useState(
     product?.oldPrice != null ? String(product.oldPrice) : ""
@@ -131,6 +132,7 @@ export default function ProductForm({
 
     const formData = new FormData();
     formData.append("title", title);
+    formData.append("description", description);
     formData.append("price", price);
     formData.append("oldPrice", oldPrice);
     formData.append("category", category);
@@ -251,6 +253,14 @@ export default function ProductForm({
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         required
+      />
+
+      <textarea
+        className="border p-2 rounded min-h-[90px] resize-y"
+        placeholder="Описание (материал, размеры, особенности — необязательно)"
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
+        maxLength={2000}
       />
 
       <input

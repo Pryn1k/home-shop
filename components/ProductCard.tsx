@@ -13,6 +13,7 @@ type Props = {
   stock?: number | null;
   category?: string;
   images?: string[] | null;
+  description?: string | null;
   isAdmin?: boolean;
   priority?: boolean;
 };
@@ -29,6 +30,7 @@ export default function ProductCard({
   stock,
   category,
   images,
+  description,
   isAdmin,
   priority,
 }: Props) {
@@ -112,6 +114,7 @@ export default function ProductCard({
             images: images ?? null,
             category: category ?? "",
             stock: stock ?? null,
+            description: description ?? null,
             createdAt: createdAt ?? "",
           }}
         />

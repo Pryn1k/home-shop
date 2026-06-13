@@ -19,9 +19,13 @@ export async function generateMetadata({
 
   if (!product) return { title: "Товар не найден" };
 
+  const metaDescription = product.description
+    ? product.description.replace(/\s+/g, " ").slice(0, 160)
+    : `${product.title} — ${product.price} грн. Магазин Домашний.`;
+
   return {
     title: product.title,
-    description: `${product.title} — ${product.price} грн. Магазин Домашний.`,
+    description: metaDescription,
     openGraph: {
       title: product.title,
       images: product.image ? [product.image] : undefined,
@@ -101,6 +105,17 @@ export default async function ProductPage({
                             </>
                         )}
                     </div>
+
+                    {product.description && (
+                        <div className="mt-4 border-t border-border pt-4">
+                            <h2 className="mb-1.5 text-sm font-semibold uppercase tracking-wide text-muted">
+                                Описание
+                            </h2>
+                            <p className="whitespace-pre-line leading-relaxed text-foreground/90">
+                                {product.description}
+                            </p>
+                        </div>
+                    )}
 
                     <AddToCartButton
                         product={{
