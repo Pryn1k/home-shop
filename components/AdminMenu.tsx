@@ -78,6 +78,14 @@ export default function AdminMenu() {
         </div>
 
         <nav className="flex flex-col gap-2">
+          <Link
+            href="/admin"
+            onClick={() => setOpen(false)}
+            className="rounded-lg px-3 py-2 hover:bg-gray-100 transition"
+          >
+            📊 Статистика
+          </Link>
+
           <button
             onClick={() => {
               setAddOpen(true);

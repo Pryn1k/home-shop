@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import SiteHeader from "@/components/SiteHeader";
 import Footer from "@/components/Footer";
+import VisitTracker from "@/components/VisitTracker";
 import { CartProvider } from "@/context/CartContext";
 
 // выставляем тему до первой отрисовки, чтобы не было «вспышки» неправильной темы
@@ -60,6 +61,7 @@ export default function RootLayout({
           <SiteHeader />
           {children}
           <Footer />
+          <VisitTracker />
         </CartProvider>
       </body>
     </html>
